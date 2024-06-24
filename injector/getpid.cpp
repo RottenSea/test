@@ -4,12 +4,12 @@
 
 #include "getpid.h"
 
-DWORD GetProcessId(const char* processName)
+GetProcessId(const char *processName)
 {
 	PROCESSENTRY32 processInfo;
 	processInfo.dwSize = sizeof(PROCESSENTRY32);
 
-	DWORD processId ;
+	DWORD processId;
 
 	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 
@@ -17,47 +17,33 @@ DWORD GetProcessId(const char* processName)
 	{
 		std::cerr << "Failed to take snapshot of processes. Error code: " << GetLastError() << std::endl;
 	}
-	
-	if (Process32First(snapshot, &processInfo))
 
+	if (Process32First(snapshot, &processInfo))
 	{
 		int i = 1;
-		std::cout << "i = " << i << std::endl;
-		std::cout << "----------------------------------" << std::endl;
-		std::cout << "Process Name: " << processInfo.szExeFile << std::endl;
-		std::cout << "Process ID: " << processInfo.th32ProcessID << std::endl;
-		std::cout << "Parent Process ID: " << processInfo.th32ParentProcessID << std::endl;
-		std::cout << "Threads: " << processInfo.cntThreads << std::endl;
-		std::cout << "Priority Class: " << processInfo.pcPriClassBase << std::endl;
-		std::cout << "----------------------------------" << std::endl;
-		std::cout << std::endl;
+		flag = true;
+		std::cout << "Finding Process..." << std::endl;
 
 		do
 		{
 			i++;
-			std::cout << "i = " << i << std::endl;
-			std::cout << "----------------------------------" << std::endl;
-			std::cout << "Process Name: " << processInfo.szExeFile << std::endl;
-			std::cout << "Process ID: " << processInfo.th32ProcessID << std::endl;
-			std::cout << "Parent Process ID: " << processInfo.th32ParentProcessID << std::endl;
-			std::cout << "Threads: " << processInfo.cntThreads << std::endl;
-			std::cout << "Priority Class: " << processInfo.pcPriClassBase << std::endl;
-			std::cout << "----------------------------------" << std::endl;
 			std::cout << std::endl;
-			if ((processInfo.szExeFile) == processName)
+
+			if (std::string(processInfo.szExeFile) == processName)
 			{
-				std::cout << "process found" << std::endl;
+				flag = false;
+				std::cout << "Process Found Successfully" << std::endl;
+
 				processId = processInfo.th32ProcessID;
 			}
-		} 
-		while (Process32Next(snapshot, &processInfo));
+		} while (Process32Next(snapshot, &processInfo) && flag);
 	}
 
 	else
 	{
 		std::cerr << "Failed to get first process. Error code: " << GetLastError() << std::endl;
 	}
-	
+
 	CloseHandle(snapshot);
 	return processId;
 }
