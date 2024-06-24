@@ -1,2 +1,3 @@
 #pragma once
-DWORD GetProcessId(const char* processName);
+
+DWORD GetProcessId(const char *processName);

@@ -4,7 +4,7 @@
 
 #include "getpid.h"
 
-GetProcessId(const char *processName)
+DWORD GetProcessId(const char *processName)
 {
 	PROCESSENTRY32 processInfo;
 	processInfo.dwSize = sizeof(PROCESSENTRY32);
