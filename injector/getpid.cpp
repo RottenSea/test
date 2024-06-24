@@ -21,7 +21,7 @@ DWORD GetProcessId(const char *processName)
 	if (Process32First(snapshot, &processInfo))
 	{
 		int i = 1;
-		flag = true;
+		BOOL flag = true;
 		std::cout << "Finding Process..." << std::endl;
 
 		do
