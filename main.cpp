@@ -16,5 +16,7 @@ int main()
 
 	std::cout << "Process ID: " << processId << std::endl;
 
+	std::cin.get();
+
 	return 0;
 }
