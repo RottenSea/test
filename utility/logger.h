@@ -19,7 +19,9 @@ public:
 
     ~Logger();
 
-    static std::ostream &start(level log_level, const int32_t line, const std::string &function);
+    static std::ostream &start(level log_level,
+                               const int32_t line,
+                               const std::string &function);
 
     friend void initLogger(const std::string &info_log_filename,
                            const std::string &warn_log_filename,
