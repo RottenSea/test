@@ -22,5 +22,3 @@ const std::string filename = "log.log";
 
 
 
-
-
