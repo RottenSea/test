@@ -23,7 +23,7 @@ std::ostream &Logger::start(level log_level,
     time_t tm;
     time(&tm);
     char time_string[128];
-    time_t(&tm, time_string);
+    time_t(&tm) = tm;
     return getStream(log_rank) << time_string
                                << "function (" << function << ")"
                                << "line " << line
