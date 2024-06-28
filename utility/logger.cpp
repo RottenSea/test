@@ -3,25 +3,19 @@
 
 #include "logger.h"
 
-int main()
+std::string message = "Hello, world!";
+
+void LogToFile()
 {
-}
-
-std::string filepath = "";
-std::string filename;
-std::string message;
-void LogToFile() {
-
+    std::ofstream ofs("logs/log.txt", std::ios::app);
+    if (!ofs.is_open())
+    {
+        std::cout << "无法打开日志文件" << std::endl;
+        return;
+    }
+    ofs << message << std::endl;
+    ofs.close();
 };
-
-void Logger::Log(Level level, const std::string *message)
-{
-    LevelToString(level);
-
-    std::string filename = GetCurrentTime();
-
-    std::string filepath = GetCurrentTime() + ".log";
-}
 
 std::string GetCurrentTime()
 {
@@ -36,4 +30,21 @@ std::string GetCurrentTime()
     std::cout << "当前时间: " << buffer << std::endl;
 
     return buffer;
+}
+
+void Logger::Log(Level level, const std::string *message)
+{
+    LevelToString(level);
+
+    std::string filename = GetCurrentTime() + ".log";
+
+    std::string filepath = "logs/" + filename;
+
+    LogToFile();
+}
+
+int main()
+{
+    std::cout << "Hello, world!" << std::endl;
+    LogToFile();
 }
