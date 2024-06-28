@@ -1,13 +1,20 @@
-#include <iostream>
-#include <ctime>
-
 #include "logger.h"
 
 std::string message = "Hello, world!";
 
 void LogToFile()
 {
-    std::ofstream ofs("logs/log.txt", std::ios::app);
+    std::string folderpath = "logs";
+    if (std::filesystem::create_directory(folderpath))
+    {
+        std::cout << "文件夹创建成功：" << folderpath << std::endl;
+    }
+    else
+    {
+        std::cerr << "文件夹创建失败或文件夹已存在：" << folderpath << std::endl;
+    }
+
+    std::ofstream ofs("logs/log.log", std::ios::app);
     if (!ofs.is_open())
     {
         std::cout << "无法打开日志文件" << std::endl;
