@@ -46,7 +46,7 @@ public:
         std::time_t now = std::time(nullptr);
         std::tm *local_now = std::localtime(&now);
         char buffer[16];
-        std::strftime(buffer, sizeof(buffer), "%H:%M:%S", local_now);
+        std::strftime(buffer, sizeof(buffer), "%H-%M-%S", local_now);
         return buffer;
     }
 
@@ -54,12 +54,7 @@ public:
     {
         if (!std::filesystem::exists(folderpath))
         {
-            std::cout << "Creating folder: " << folderpath << std::endl;
-            if (std::filesystem::create_directories(folderpath))
-            {
-                std::cout << "Folder created: " << folderpath << std::endl;
-            }
-            else
+            if (!std::filesystem::create_directories(folderpath))
             {
                 std::cerr << "Folder creation failure or already exists: " << folderpath << std::endl;
             }
@@ -68,7 +63,7 @@ public:
 
     static void SetFilename()
     {
-        filename = folderpath + "/" + GetCurrentDate() + ".log";
+        filename = folderpath + "/" + GetCurrentDate() + "_" + GetCurrentTime() + ".log";
     }
 
     static void LogToFile(const std::string &level, const std::string &message)
@@ -79,10 +74,8 @@ public:
             std::cerr << "Failed to open file: " << filename << std::endl;
             return;
         }
-
         std::string time = GetCurrentTime();
         ofs << "[" << level << "] " << "[" << time << "] " << message << std::endl;
-
         ofs.close();
     }
 
