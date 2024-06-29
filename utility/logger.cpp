@@ -2,7 +2,8 @@
 
 int main()
 {
-    Logger logger;
-    logger.Log(Logger::Info, "This is a test log message.");
+    Logger::Initialize();
+    LOG_INFO("message");
+    LOG_ERROR("error");
     return 0;
 }

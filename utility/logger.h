@@ -6,6 +6,12 @@
 #include <filesystem>
 #include <string>
 
+#define LOG_DEBUG(message) Logger::Log(Logger::Level::Debug, message)   
+#define LOG_INFO(message) Logger::Log(Logger::Info, message);
+#define LOG_WARNING(message) Logger::Log(Logger::Level::Warning, message)   
+#define LOG_ERROR(message) Logger::Log(Logger::Level::Error, message)   
+#define LOG_FATAL(message) Logger::Log(Logger::Level::Fatal, message)   
+
 class Logger
 {
 public:
@@ -20,14 +26,15 @@ public:
 
     static std::string folderpath;
     static std::string filename;
+    static std::string message;
 
-    Logger()
+    static void Initialize()
     {
         CreateFolder();
         SetFilename();
     }
 
-    void Log(const Level &level, const std::string &message)
+    static void Log(const Level &level, const std::string &message)
     {
         LogToFile(LevelToString(level), message);
     }
