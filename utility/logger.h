@@ -25,20 +25,11 @@ public:
     {
         CreateFolder();
         SetFilename();
-    }
+    };
 
     void Log(const Level &level, const std::string &message)
     {
         LogToFile(LevelToString(level), message);
-    }
-
-    static std::string GetCurrentDate()
-    {
-        std::time_t now = std::time(nullptr);
-        std::tm *local_now = std::localtime(&now);
-        char buffer[16];
-        std::strftime(buffer, sizeof(buffer), "%Y-%m-%d", local_now);
-        return buffer;
     }
 
     static std::string GetCurrentTime()
@@ -63,28 +54,31 @@ public:
             {
                 std::cerr << "Folder creation failure or already exists: " << folderpath << std::endl;
             }
+            std::cout << "Folder path: " << folderpath << std::endl;
+            void SetFilename();
+            std::cout << "Log file: " << filename << std::endl;
         }
-    }
+    };
 
     static void SetFilename()
     {
-        filename = folderpath + "/" + GetCurrentDate() + ".log";
+        filename = folderpath + "/" + GetCurrentTime() + ".log";
     }
 
     static void LogToFile(const std::string &level, const std::string &message)
     {
         std::ofstream ofs(filename, std::ios::app);
+        std::string time = GetCurrentTime();
+        std::cout << "[" << level << "] " << "[" << time << "] " << message << filename << std::endl;
+
         if (!ofs.is_open())
         {
             std::cerr << "Failed to open file: " << filename << std::endl;
             return;
         }
-
-        std::string time = GetCurrentTime();
         ofs << "[" << level << "] " << "[" << time << "] " << message << std::endl;
-
         ofs.close();
-    }
+    };
 
 private:
     static const std::string LevelToString(Level level)
@@ -107,13 +101,5 @@ private:
     }
 };
 
-// 初始化静态成员变量，将 folderpath 设置为子文件夹路径
-std::string Logger::folderpath = "logs/subfolder";
+std::string Logger::folderpath = "logs";
 std::string Logger::filename;
-
-int main()
-{
-    Logger logger;
-    logger.Log(Logger::Info, "This is a test log message.");
-    return 0;
-}
