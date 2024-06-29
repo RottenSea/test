@@ -1,6 +1,6 @@
 /.vs
 /.vscode
-/Build
+/build
 *.exe
 
 test.h

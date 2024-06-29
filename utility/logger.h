@@ -37,6 +37,7 @@ public:
     static void Log(const Level &level, const std::string &message)
     {
         LogToFile(LevelToString(level), message);
+        std::cout << "[" << LevelToString(level) << "] " << message << std::endl;
     }
 
     static std::string GetCurrentDate()
