@@ -4,10 +4,7 @@
 #include <fstream>
 #include <ctime>
 #include <filesystem>
-#define LOG_LEVEL 0
-
-const std::string Logger::folderpath = "logs";
-const std::string Logger::filename = GetCurrentTime() + ".log";
+#include <string>
 
 class Logger
 {
@@ -21,42 +18,45 @@ public:
         Fatal
     };
 
-    static std::string GetCurrentTime()
+    static std::string folderpath;
+    static const std::string filename;
+
+    void CreateFolder()
     {
-        std::time_t now = std::time(nullptr);
-
-        std::tm *local_now = std::localtime(&now);
-
-        char buffer[32];
-
-        std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", local_now);
-
-        return buffer;
-    }
+        if (!std::filesystem::exists(folderpath))
+        {
+            std::cout << "Creating folder: " << folderpath << std::endl;
+            if (std::filesystem::create_directory(folderpath))
+            {
+                std::cout << "Folder created: " << folderpath << std::endl;
+            }
+            else
+            {
+                std::cerr << "Folder creation failure or already exists: " << folderpath << std::endl;
+            }
+        }
+    };
 
     Logger()
     {
         CreateFolder();
     };
 
-    void Log(Level level, const std::string *message)
+    static std::string GetCurrentTime()
     {
-        Logger::LogToFile(GetCurrentTime(), LevelToString(level), *message);
+        std::time_t now = std::time(nullptr);
+        std::tm *local_now = std::localtime(&now);
+        char buffer[32];
+        std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", local_now);
+        return buffer;
     }
 
-    void CreateFolder()
+    void Log(const Level &level, const std::string &message)
     {
-        if (std::filesystem::create_directory(folderpath))
-        {
-            std::cout << "folder created: " << folderpath << std::endl;
-        }
-        else
-        {
-            std::cerr << "Folder creation failure or already exists: " << folderpath << std::endl;
-        }
+        Logger::LogToFile(Logger::GetCurrentTime(), LevelToString(level), message);
     }
 
-    void LogToFile(std::string time, std::string level, std::string message)
+    void LogToFile(const std::string &time, const std::string &level, const std::string message)
     {
         std::ofstream ofs(Logger::filename, std::ios::app);
         if (!ofs.is_open())
@@ -64,15 +64,12 @@ public:
             std::cerr << "Failed to open file" << Logger::folderpath << std::endl;
             return;
         }
-        ofs << "[" << level << "] " << "[" << time << "]" << message << std::endl;
+        ofs << "[" << level << "] " << "[" << time << "] " << message << std::endl;
         ofs.close();
     };
 
 private:
-    static const std::string folderpath;
-    static const std::string filename;
-
-    static std::string LevelToString(Level level)
+    const std::string LevelToString(Level level)
     {
         switch (level)
         {
@@ -91,3 +88,7 @@ private:
         };
     };
 };
+
+Logger logger;
+std::string Logger::folderpath = "logs";
+const std::string Logger::filename = Logger::GetCurrentTime() + ".log";
