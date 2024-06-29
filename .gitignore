@@ -7,3 +7,5 @@ test.h
 test.cpp
 /utility/test.h
 /utility/test.cpp
+/logs
+/utility/logs
