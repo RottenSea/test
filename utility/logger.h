@@ -19,7 +19,7 @@ public:
     };
 
     static std::string folderpath;
-    static const std::string filename;
+    static std::string filename;
 
     Logger()
     {
@@ -28,7 +28,7 @@ public:
 
     void Log(const Level &level, const std::string &message)
     {
-        Logger::LogToFile(Logger::GetCurrentTime(), LevelToString(level), message);
+        Logger::LogToFile(LevelToString(level), message);
     }
 
     static std::string GetCurrentTime()
@@ -53,13 +53,18 @@ public:
             {
                 std::cerr << "Folder creation failure or already exists: " << folderpath << std::endl;
             }
+            std::cout << "Folder path: " << folderpath << std::endl;
+            void SetFilename();
+            std::cout << "Log file: " << filename << std::endl;
         }
     };
 
-    static void LogToFile(const std::string &time, const std::string &level, const std::string &message)
+    static void LogToFile(const std::string &level, const std::string &message)
     {
-        std::ofstream ofs(Logger::filename, std::ios::app);
+        std::ofstream ofs(filename, std::ios::app);
+        std::string time = GetCurrentTime();
         std::cout << "[" << level << "] " << "[" << time << "] " << message << filename << std::endl;
+
         if (!ofs.is_open())
         {
             std::cerr << "Failed to open file: " << Logger::filename << std::endl;
@@ -68,6 +73,11 @@ public:
         ofs << "[" << level << "] " << "[" << time << "] " << message << std::endl;
         ofs.close();
     };
+
+    static void SetFilename()
+    {
+        Logger::filename = folderpath + "/" + GetCurrentTime() + ".log";
+    }
 
 private:
     static const std::string LevelToString(Level level)
@@ -91,5 +101,4 @@ private:
 };
 
 std::string Logger::folderpath = "logs";
-const std::string Logger::filename = Logger::folderpath + "/" + Logger::GetCurrentTime() + ".log";
 
