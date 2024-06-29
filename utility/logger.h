@@ -6,6 +6,9 @@
 #include <filesystem>
 #define LOG_LEVEL 0
 
+const std::string Logger::folderpath = "logs";
+const std::string Logger::filename = GetCurrentTime() + ".log";
+
 class Logger
 {
 public:
@@ -18,11 +21,7 @@ public:
         Fatal
     };
 
-    std::string *message;
-    std::string *folderpath = "logs";
-    static void Log(Level level, const std::string *message);
-
-    std::string GetCurrentTime()
+    static std::string GetCurrentTime()
     {
         std::time_t now = std::time(nullptr);
 
@@ -35,7 +34,17 @@ public:
         return buffer;
     }
 
-    static void LogToFile(std::string message, std::string folderpath)
+    Logger()
+    {
+        CreateFolder();
+    };
+
+    void Log(Level level, const std::string *message)
+    {
+        Logger::LogToFile(GetCurrentTime(), LevelToString(level), *message);
+    }
+
+    void CreateFolder()
     {
         if (std::filesystem::create_directory(folderpath))
         {
@@ -45,29 +54,24 @@ public:
         {
             std::cerr << "Folder creation failure or already exists: " << folderpath << std::endl;
         }
+    }
 
-        std::ofstream ofs("logs/log.log", std::ios::app);
+    void LogToFile(std::string time, std::string level, std::string message)
+    {
+        std::ofstream ofs(Logger::filename, std::ios::app);
         if (!ofs.is_open())
         {
-            std::cout << "无法打开日志文件" << std::endl;
+            std::cerr << "Failed to open file" << Logger::folderpath << std::endl;
             return;
         }
-        ofs << message << std::endl;
+        ofs << "[" << level << "] " << "[" << time << "]" << message << std::endl;
         ofs.close();
     };
 
-    void Logger::Log(Level level, const std::string *message)
-    {
-        LevelToString(level);
-
-        std::string filename = GetCurrentTime() + ".log";
-
-        std::string filepath = "logs/" + filename;
-
-        LogToFile(*message, *message);
-    }
-
 private:
+    static const std::string folderpath;
+    static const std::string filename;
+
     static std::string LevelToString(Level level)
     {
         switch (level)
