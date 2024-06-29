@@ -26,6 +26,11 @@ public:
         CreateFolder();
     };
 
+    void Log(const Level &level, const std::string &message)
+    {
+        Logger::LogToFile(Logger::GetCurrentTime(), LevelToString(level), message);
+    }
+
     static std::string GetCurrentTime()
     {
         std::time_t now = std::time(nullptr);
@@ -33,11 +38,6 @@ public:
         char buffer[32];
         std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", local_now);
         return buffer;
-    }
-
-    void Log(const Level &level, const std::string &message)
-    {
-        Logger::LogToFile(Logger::GetCurrentTime(), LevelToString(level), message);
     }
 
     static void CreateFolder()
@@ -56,9 +56,10 @@ public:
         }
     };
 
-    void LogToFile(const std::string &time, const std::string &level, const std::string &message)
+    static void LogToFile(const std::string &time, const std::string &level, const std::string &message)
     {
         std::ofstream ofs(Logger::filename, std::ios::app);
+        std::cout << "[" << level << "] " << "[" << time << "] " << message << filename << std::endl;
         if (!ofs.is_open())
         {
             std::cerr << "Failed to open file: " << Logger::filename << std::endl;
