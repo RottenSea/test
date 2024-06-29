@@ -2,7 +2,7 @@
 
 int main()
 {
-    std::cout << "Hello, world!" << std::endl;
-
-    logger.Log(Logger::Level::Info, "test message");
+    Logger logger;
+    logger.Log(Logger::Info, "This is a test log message.");
+    return 0;
 }

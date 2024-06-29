@@ -2,3 +2,8 @@
 /.vscode
 /Build
 *.exe
+
+test.h
+test.cpp
+/utility/test.h
+/utility/test.cpp

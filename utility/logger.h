@@ -21,22 +21,6 @@ public:
     static std::string folderpath;
     static const std::string filename;
 
-    void CreateFolder()
-    {
-        if (!std::filesystem::exists(folderpath))
-        {
-            std::cout << "Creating folder: " << folderpath << std::endl;
-            if (std::filesystem::create_directory(folderpath))
-            {
-                std::cout << "Folder created: " << folderpath << std::endl;
-            }
-            else
-            {
-                std::cerr << "Folder creation failure or already exists: " << folderpath << std::endl;
-            }
-        }
-    };
-
     Logger()
     {
         CreateFolder();
@@ -56,12 +40,28 @@ public:
         Logger::LogToFile(Logger::GetCurrentTime(), LevelToString(level), message);
     }
 
-    void LogToFile(const std::string &time, const std::string &level, const std::string message)
+    static void CreateFolder()
+    {
+        if (!std::filesystem::exists(folderpath))
+        {
+            std::cout << "Creating folder: " << folderpath << std::endl;
+            if (std::filesystem::create_directories(folderpath))
+            {
+                std::cout << "Folder created: " << folderpath << std::endl;
+            }
+            else
+            {
+                std::cerr << "Folder creation failure or already exists: " << folderpath << std::endl;
+            }
+        }
+    };
+
+    void LogToFile(const std::string &time, const std::string &level, const std::string &message)
     {
         std::ofstream ofs(Logger::filename, std::ios::app);
         if (!ofs.is_open())
         {
-            std::cerr << "Failed to open file" << Logger::folderpath << std::endl;
+            std::cerr << "Failed to open file: " << Logger::filename << std::endl;
             return;
         }
         ofs << "[" << level << "] " << "[" << time << "] " << message << std::endl;
@@ -69,7 +69,7 @@ public:
     };
 
 private:
-    const std::string LevelToString(Level level)
+    static const std::string LevelToString(Level level)
     {
         switch (level)
         {
@@ -85,10 +85,10 @@ private:
             return "Fatal";
         default:
             return "Unknown";
-        };
-    };
+        }
+    }
 };
 
-Logger logger;
 std::string Logger::folderpath = "logs";
-const std::string Logger::filename = Logger::GetCurrentTime() + ".log";
+const std::string Logger::filename = Logger::folderpath + "/" + Logger::GetCurrentTime() + ".log";
+
