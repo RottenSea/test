@@ -28,64 +28,19 @@ public:
     static std::string filename;
     static std::string message;
 
-    static void Initialize()
-    {
-        CreateFolder();
-        SetFilename();
-    }
+    static void Initialize();
 
-    static void Log(const Level &level, const std::string &message)
-    {
-        LogToFile(LevelToString(level), message);
-        std::cout << "[" << LevelToString(level) << "] " << message << std::endl;
-    }
+    static void Log(const Level &level, const std::string message);
 
-    static std::string GetCurrentDate()
-    {
-        std::time_t now = std::time(nullptr);
-        std::tm *local_now = std::localtime(&now);
-        char buffer[16];
-        std::strftime(buffer, sizeof(buffer), "%Y-%m-%d", local_now);
-        return buffer;
-    }
+    static std::string GetCurrentDate();
 
-    static std::string GetCurrentTime()
-    {
-        std::time_t now = std::time(nullptr);
-        std::tm *local_now = std::localtime(&now);
-        char buffer[16];
-        std::strftime(buffer, sizeof(buffer), "%H-%M-%S", local_now);
-        return buffer;
-    }
+    static std::string GetCurrentTime();
 
-    static void CreateFolder()
-    {
-        if (!std::filesystem::exists(folderpath))
-        {
-            if (!std::filesystem::create_directories(folderpath))
-            {
-                std::cerr << "Folder creation failure or already exists: " << folderpath << std::endl;
-            }
-        }
-    }
+    static void CreateFolder();
 
-    static void SetFilename()
-    {
-        filename = folderpath + "/" + GetCurrentDate() + "_" + GetCurrentTime() + ".log";
-    }
+    static void SetFilename();
 
-    static void LogToFile(const std::string &level, const std::string &message)
-    {
-        std::ofstream ofs(filename, std::ios::app);
-        if (!ofs.is_open())
-        {
-            std::cerr << "Failed to open file: " << filename << std::endl;
-            return;
-        }
-        std::string time = GetCurrentTime();
-        ofs << "[" << level << "] " << "[" << time << "] " << message << std::endl;
-        ofs.close();
-    }
+    static void LogToFile(const std::string &level, const std::string &message);
 
 private:
     static const std::string LevelToString(Level level)

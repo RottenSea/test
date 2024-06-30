@@ -2,14 +2,15 @@
 CXX = g++
 
 # compiler flags
-CXXFLAGS =
+CXXFLAGS = -c -Iutility
 
 # directories
 INJECTORDIR = injector
 UTILITYDIR = utility
 
 # source files
-SRCS := $(wildcard *.cpp) $(wildcard $(INJECTORDIR)/*.cpp) $(wildcard $(UTILITYDIR)/*.cpp)
+SRC := $(wildcard *.cpp) $(wildcard $(INJECTORDIR)/*.cpp) $(wildcard $(UTILITYDIR)/*.cpp)
+OBJ = $(patsubst %.cpp, %.o,$(SRC))
 
 # target directory
 BINDIR = Build
@@ -21,9 +22,21 @@ TARGET = $(BINDIR)/main
 all: $(TARGET)
 
 # link the object files to create the executable
-$(TARGET): $(SRCS)
-	$(CXX) $(CXXFLAGS) $^ -o $@
+$(TARGET): $(OBJ)
+	$(CXX) -o $@ $^
+ 
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) $< -o $@
 
 # clean up
 clean:
-	rm -f $(TARGET)Makefile
+	rm -f $(TARGET) $(OBJ)
+
+clean-all:
+	rm -rf $(BINDIR)/logs
+
+
+
+
+
+

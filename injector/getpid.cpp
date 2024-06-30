@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "getpid.h"
+#include "logger.h"
 
 DWORD GetProcessId(const char *processName)
 {
@@ -15,14 +16,14 @@ DWORD GetProcessId(const char *processName)
 
 	if (snapshot == INVALID_HANDLE_VALUE)
 	{
-		std::cerr << "Failed to take snapshot of processes. Error code: " << GetLastError() << std::endl;
+		LOG_ERROR("Failed to take snapshot of processes. Error code: " + std::to_string(GetLastError()));
 	}
 
 	if (Process32First(snapshot, &processInfo))
 	{
 		int i = 1;
 		BOOL flag = true;
-		std::cout << "Finding Process..." << std::endl;
+		LOG_INFO("Finding process");
 
 		do
 		{
@@ -32,7 +33,7 @@ DWORD GetProcessId(const char *processName)
 			if (std::string(processInfo.szExeFile) == processName)
 			{
 				flag = false;
-				std::cout << "Process Found Successfully" << std::endl;
+				LOG_INFO("Process Found Successfully");
 
 				processId = processInfo.th32ProcessID;
 			}
@@ -41,9 +42,9 @@ DWORD GetProcessId(const char *processName)
 
 	else
 	{
-		std::cerr << "Failed to get first process. Error code: " << GetLastError() << std::endl;
+		LOG_ERROR("Failed to get first process. Error code: " + std::to_string(GetLastError()));
 	}
-
+	
 	CloseHandle(snapshot);
 	return processId;
 }
