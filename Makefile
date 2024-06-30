@@ -30,10 +30,10 @@ $(TARGET): $(OBJ)
 
 # clean up
 clean:
-	rm -f $(TARGET) $(OBJ)
+	rm -f $(OBJ)
 
 clean-all:
-	rm -rf $(BINDIR)/logs
+	rm -rf $(TARGET) $(BINDIR)/logs
 
 
 

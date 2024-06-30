@@ -62,6 +62,3 @@ private:
         }
     }
 };
-
-std::string Logger::folderpath = "logs";
-std::string Logger::filename;

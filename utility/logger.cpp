@@ -1,5 +1,8 @@
 #include "logger.h"
 
+std::string Logger::folderpath = "logs";
+std::string Logger::filename;
+
 void Logger::Initialize()
 {
     CreateFolder();
