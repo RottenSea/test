@@ -3,6 +3,7 @@
 /build
 *.o
 *.exe
+*.log
 
 test.h
 test.cpp
