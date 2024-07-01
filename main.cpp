@@ -13,6 +13,11 @@ int main()
 	const char *processName = "PlantsVsZombies.exe";
 	DWORD processId = GetProcessId(processName);
 	processId = static_cast<int>(processId);
+	if (processId == 0)
+	{
+		std::cin.get();
+		return 1;
+	}
 	LOG_INFO("Process ID: " + std::to_string(processId))
 	std::cin.get();
 	return 0;

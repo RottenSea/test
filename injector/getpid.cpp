@@ -36,15 +36,22 @@ DWORD GetProcessId(const char *processName)
 				LOG_INFO("Process Found Successfully");
 
 				processId = processInfo.th32ProcessID;
+				CloseHandle(snapshot);
+				return processId;
 			}
 		} while (Process32Next(snapshot, &processInfo) && flag);
+
+		if (flag)
+		{
+			LOG_ERROR("Process not found");
+		}
 	}
 
 	else
 	{
 		LOG_ERROR("Failed to get first process. Error code: " + std::to_string(GetLastError()));
 	}
-	
+
 	CloseHandle(snapshot);
-	return processId;
+	return 0;
 }

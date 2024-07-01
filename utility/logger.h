@@ -30,7 +30,7 @@ public:
 
     static void Initialize();
 
-    static void Log(const Level &level, const std::string message);
+    static void Log(const Level &level, const std::string &message);
 
     static std::string GetCurrentDate();
 

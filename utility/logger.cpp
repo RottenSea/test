@@ -9,7 +9,7 @@ void Logger::Initialize()
     SetFilename();
 }
 
-void Logger::Log(const Level &level, const std::string message)
+void Logger::Log(const Level &level, const std::string &message)
 {
     LogToFile(LevelToString(level), message);
     std::cout << "[" << LevelToString(level) << "] " << message << std::endl;
