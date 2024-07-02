@@ -5,7 +5,7 @@
 #include "getpid.h"
 #include "logger.h"
 
-DWORD GetProcessId(const char *processName)
+DWORD GetProcessId(const wchar_t* processName)
 {
 	PROCESSENTRY32 processInfo;
 	processInfo.dwSize = sizeof(PROCESSENTRY32);
@@ -30,7 +30,7 @@ DWORD GetProcessId(const char *processName)
 			i++;
 			std::cout << std::endl;
 
-			if (std::string(processInfo.szExeFile) == processName)
+			if (processInfo.szExeFile == processName)
 			{
 				flag = false;
 				LOG_INFO("Process Found Successfully");
