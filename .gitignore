@@ -4,6 +4,7 @@
 *.o
 *.exe
 *.log
+*.md
 
 test.h
 test.cpp

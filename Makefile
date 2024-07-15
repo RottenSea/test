@@ -15,7 +15,7 @@ SRC := $(wildcard *.cpp) $(wildcard $(UTILITYDIR)/*.cpp)
 OBJ = $(patsubst %.cpp, %.o, $(SRC))
 
 # target directory
-BINDIR = Build
+BINDIR = build
 
 # target
 TARGET = $(BINDIR)/main
