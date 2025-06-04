@@ -2,10 +2,10 @@
 CXX = g++
 
 # compiler flags
-CXXFLAGS = -c -Iutility -Iinjector -ffunction-sections -fdata-sections
+CXXFLAGS = -c -Iutility -Iinjector -ffunction-sections -fdata-sections -static-libgcc -static-libstdc++
 
 # linker flags
-LDFLAGS = -Wl,--gc-sections
+LDFLAGS = -Wl --gc-sections
 
 # directories
 UTILITYDIR = utility
@@ -18,10 +18,12 @@ OBJ = $(patsubst %.cpp, %.o, $(SRC))
 BINDIR = build
 
 # target
-TARGET = $(BINDIR)/main
+TARGET = *.exe $(BINDIR)/*.exe
 
 # rules
 all: release
+cs1: CStudent.o
+	$(CXX) $(LDFLAGS) -o $(BINDIR)/$@ $^
 
 # release build
 release: CXXFLAGS += -O2

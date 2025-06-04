@@ -1,12 +1,9 @@
 /.vs
 /.vscode
 /build
+/learn
 *.o
 *.exe
 *.log
-*.md
 
-test.h
-test.cpp
-/logs
-/utility/logs
+Learn.md
