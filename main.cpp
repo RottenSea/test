@@ -1,27 +1,24 @@
+#include <windows.h>
+#include <tlhelp32.h>
 #include <iostream>
-#include <Windows.h>
-void add(int a, int *b)
-{
-	a += *b;
 
-	*b = a;
-	std::cout << "a = " << a << std::endl;
-	std::cout << "b = " << *b << std::endl;
-}
+int a = 1;
+int b = 2;
+
 int main()
 {
-	int a = 10;
-	int *b = &a;
-	int c = a + *b;
 	std::cout << "a = " << a << std::endl;
-	std::cout << "b = " << *b << std::endl;
-	std::cout << "c = " << c << std::endl;
+	std::cout << "b = " << b << std::endl;
 
-	add(a, b);
-
+	int a = 3;
+	int b = 4;
 	std::cout << "a = " << a << std::endl;
-	std::cout << "b = " << *b << std::endl;
-	std::cout << "c = " << c << std::endl;
+	std::cout << "b = " << b << std::endl;
 
-	return 0;
+	{
+		int a = 5;
+		int b = 6;
+		std::cout << "a = " << a << std::endl;
+		std::cout << "b = " << b << std::endl;
+	}
 }
