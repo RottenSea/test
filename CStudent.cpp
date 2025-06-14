@@ -75,7 +75,7 @@ int main()
     int choice_role;
     int login_index;
 
-    // 忽略已有文件，进行初始化并保存示例数据
+    // 仅初次使用进行初始化
     initialize_data();
 
     // 主循环：角色选择 -> 登录 -> 菜单操作
@@ -86,7 +86,7 @@ int main()
         // 但为了保证代码的可移植性，最好不要使用它。
         setbuf(stdin, NULL); // 忽略输入缓冲区中的数据
 
-        system("clear"); // Linux/Unix 下清屏。Windows 下可改为 system("cls");
+        system("cls"); // Linux/Unix 下清屏。Windows 下可改为 system("cls");
         printf("========= 学生成绩管理系统 =========\n");
         printf("请选择身份:\n");
         printf("1. 学生\n");
@@ -298,7 +298,7 @@ void student_menu(int user_index)
     int choice;
     while (1)
     {
-        system("clear");
+        system("cls");
         printf("------ 学生菜单 (%s) ------\n", users[user_index].name);
         printf("1. 查询成绩\n");
         printf("2. 修改密码\n");
@@ -376,7 +376,7 @@ void teacher_menu(int user_index)
     int choice;
     while (1)
     {
-        system("clear");
+        system("cls");
         printf("------ 教师菜单 (%s) ------\n", users[user_index].name);
         printf("1. 添加学生成绩\n");
         printf("2. 删除学生成绩\n");
@@ -626,7 +626,7 @@ void admin_menu(int user_index)
     int choice;
     while (1)
     {
-        system("clear");
+        system("cls");
         printf("------ 管理员菜单 (%s) ------\n", users[user_index].name);
         printf("1. 添加用户（学生/教师）\n");
         printf("2. 删除用户（学生/教师）\n");
