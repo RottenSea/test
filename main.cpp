@@ -1,24 +1,15 @@
-#include <windows.h>
-#include <tlhelp32.h>
-#include <iostream>
-
-int a = 1;
-int b = 2;
+#include "stdio.h";
 
 int main()
 {
-	std::cout << "a = " << a << std::endl;
-	std::cout << "b = " << b << std::endl;
-
-	int a = 3;
-	int b = 4;
-	std::cout << "a = " << a << std::endl;
-	std::cout << "b = " << b << std::endl;
-
+	int n = 100;
+	int j;
+	int i;
+	for (i = 0; i < n; ++i)
 	{
-		int a = 5;
-		int b = 6;
-		std::cout << "a = " << a << std::endl;
-		std::cout << "b = " << b << std::endl;
+		for (j = 0; j < n; ++j)
+		{
+			// somt code
+		}
 	}
 }
