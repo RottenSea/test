@@ -1,8 +1,14 @@
-/.vs
-/.vscode
+# VSCode configuration
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
 /build
 /learn
 *.o
 *.exe
 *.log
 *.txt
+*.dat
