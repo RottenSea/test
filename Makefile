@@ -2,44 +2,47 @@
 CXX = g++
 
 # compiler flags
-CXXFLAGS = -c -Iutility -Iinjector -ffunction-sections -fdata-sections -static-libgcc -static-libstdc++
+CXXFLAGS = -Iutility -ffunction-sections -fdata-sections -static-libgcc -static-libstdc++
 
 # linker flags
-LDFLAGS = -Wl --gc-sections
+LDFLAGS = -Wl,--gc-sections
 
-# directories
-UTILITYDIR = utility
-
-# source files
-SRC := $(wildcard *.cpp) $(wildcard $(UTILITYDIR)/*.cpp)
-OBJ = $(patsubst %.cpp, %.o, $(SRC))
+# compile mode
+MODE ?= release
+ifeq ($(MODE),release)
+    CXXFLAGS += -O2
+else ifeq ($(MODE),debug)
+    CXXFLAGS += -DDEBUG -g
+else
+    $(error Unknown MODE '$(MODE)'. Use 'release' or 'debug')
+endif
 
 # target directory
 BINDIR = build
 
+# source files
+SRC := $(wildcard *.cpp)
+OBJ := $(SRC:.cpp=.o)
+
 # target
-TARGET = *.exe $(BINDIR)/*.exe
+EXE := $(patsubst %.cpp, $(BINDIR)/%.exe, $(SRC))
 
 # rules
-all: release
-cs1: CStudent.o
-	$(CXX) $(LDFLAGS) -o $(BINDIR)/$@ $^
+all: $(EXE)
 
-# release build
-release: CXXFLAGS += -O2
-release: $(TARGET)
-
-# debug build
-debug: CXXFLAGS += -DDEBUG
-debug: $(TARGET)
-
-# link the object files to create the executable
-$(TARGET): $(OBJ)
-	$(CXX) $(LDFLAGS) -o $@ $^
- 
+# compile rules
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# link rules
+$(BINDIR)/%.exe: %.o
+	@mkdir -p $(BINDIR)
+	$(CXX) $(LDFLAGS) -o $@ $<
 
 # clean up
 clean:
-	rm -f $(OBJ) $(TARGET)
+	rm -f *.o
+	rm -rf $(BINDIR)
+
+# PHONY
+.PHONY: all clean
