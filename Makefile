@@ -23,12 +23,20 @@ BINDIR = build
 # source files
 SRC := $(wildcard *.cpp)
 OBJ := $(SRC:.cpp=.o)
+MAIN_SRC = main.cpp
+MAIN_OBJ = $(MAIN_SRC:.cpp=.o)
+SINGLE_SRC ?= $(firstword $(SRC))
+SINGLE_OBJ = $(SINGLE_SRC:.cpp=.o)
 
 # target
 EXE := $(patsubst %.cpp, $(BINDIR)/%.exe, $(SRC))
+MAIN_EXE = $(patsubst %.cpp, $(BINDIR)/%.exe, $(MAIN_SRC))
+SINGLE_EXE = $(patsubst %.cpp, $(BINDIR)/%.exe, $(SINGLE_SRC))
 
 # rules
 all: $(EXE)
+main: $(MAIN_EXE)
+single: $(SINGLE_EXE)
 
 # compile rules
 %.o: %.cpp
@@ -42,7 +50,8 @@ $(BINDIR)/%.exe: %.o
 # clean up
 clean:
 	rm -f *.o
+	rm -f *.exe
 	rm -rf $(BINDIR)
 
 # PHONY
-.PHONY: all clean
+.PHONY: all clean main single
