@@ -3,6 +3,9 @@
     "*.cjson": "jsonc",
     "*.wxss": "css",
     "*.wxs": "javascript",
-    "limits": "cpp"
+    "limits": "cpp",
+    "text_encoding": "cpp",
+    "typeinfo": "cpp",
+    "system_error": "cpp"
   }
 }
