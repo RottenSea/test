@@ -6,6 +6,7 @@
     "limits": "cpp",
     "text_encoding": "cpp",
     "typeinfo": "cpp",
-    "system_error": "cpp"
+    "system_error": "cpp",
+    "*.txt": "cpp"
   }
 }
