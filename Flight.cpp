@@ -6,31 +6,31 @@
 #define MAX_USER_NUMBER 100
 #define MAX_ADMINISTRATOR_NUMBER 100
 #define MAX_ENTERPRISE_NUMBER 100
+#define MAX_USER_FLIGHT 10
 #define MAX_FLIGHT_NUMBER 100
 
 #define MAX_UUID_LENGTH 21
 #define MAX_NAME_LENGTH 21
 #define MAX_PASSWORD_LENGTH 21
 #define MAX_PHONE_LENGTH 12
-#define MAX_ID_LENGTH 31
+#define MAX_CODE_LENGTH 31
 
 const char *USER_FILE = "Users.dat";
-const char *USER_FLIGHT_FILE = "UserFlight.dat";
 const char *FLIGHTS_FILE = "Flights.dat";
 
 void initialize();
 void loadUsers();
 void saveUsers();
-void loadUserFlight();
-void saveUserFlight();
 void loadFlights();
 void saveFlishts();
 
 void reg();
 void login();
-void userMenu();
-void adminMenu();
-void enterMenu();
+void userMenu(int curr);
+void adminMenu(int curr);
+void enterMenu(int curr);
+
+time_t timeToTimeT(int year, int month, int day, int hour, int minute);
 
 void pressEnterToContinue();
 
@@ -41,6 +41,8 @@ typedef struct
     char NAME[MAX_NAME_LENGTH];
     char PASSWORD[MAX_PASSWORD_LENGTH];
     char PHONE[MAX_PHONE_LENGTH];
+    char flights[MAX_USER_FLIGHT][MAX_CODE_LENGTH];
+    int count;
     int gender; // 0未知 1男 2女
     int age;
 } USER;
@@ -71,7 +73,7 @@ int entersCount = 0;
 // 航班信息结构体
 typedef struct
 {
-    char ID[MAX_ID_LENGTH];
+    char CODE[MAX_CODE_LENGTH];
     char MODEL[MAX_NAME_LENGTH];
     char COMPANY[MAX_NAME_LENGTH];
     time_t time;
@@ -88,16 +90,17 @@ int flightsCount = 0;
 
 int main()
 {
+    initialize();
 
     int choice;
     do
     {
         system("cls");
-        printf("---航班信息管理系统---\n");
+        printf("-----航班信息管理系统-----\n");
         printf("1.注册\n");
         printf("2.登录\n");
         printf("3.退出系统\n");
-        printf("---------------------\n");
+        printf("-------------------------\n");
         printf("请选择：");
         scanf("%d", &choice);
 
@@ -124,16 +127,34 @@ int main()
 void initialize()
 {
     // 如果文件已经存在 跳过初始化
-    FILE *fp = fopen(USER_FILE, "r");
-    if (fp)
+    FILE *fp1 = fopen(USER_FILE, "r");
+    FILE *fp2 = fopen(FLIGHTS_FILE, "r");
+    if (fp1)
+        fclose(fp1);
+    if (fp2)
+        fclose(fp2);
+    if (fp1 && fp2)
+        return;
+
+    FILE *fp1 = fopen(USER_FILE, "w");
+    FILE *fp2 = fopen(FLIGHTS_FILE, "w");
+    if (fp1 == NULL)
     {
-        fclose(fp);
+        perror("文件创建失败");
         return;
     }
+    if (fp2 == NULL)
+    {
+        perror("文件创建失败");
+        return;
+    }
+    fclose(fp1);
+    fclose(fp2);
 
     usersCount = 0;
     adminsCount = 0;
     entersCount = 0;
+    flightsCount = 0;
 
     // 添加示例用户
     USER u1;
@@ -141,45 +162,46 @@ void initialize()
     strcpy(u1.NAME, "用户001");
     strcpy(u1.PASSWORD, "001");
     strcpy(u1.PHONE, "13300001111");
+    strcpy(u1.flights[0], "CZ6546");
+    u1.count = 1;
     u1.gender = 1;
     u1.age = 18;
     users[usersCount++] = u1;
 
     ADMINISTRATOR u2;
     strcpy(u1.UUID, "002");
-    strcpy(u1.NAME, "用户管理员002");
+    strcpy(u1.NAME, "用户管理员");
     strcpy(u1.PASSWORD, "002");
     u2.ROLE = 0;
     admins[adminsCount++] = u2;
 
     strcpy(u1.UUID, "003");
-    strcpy(u1.NAME, "航班管理员003");
+    strcpy(u1.NAME, "航班管理员");
     strcpy(u1.PASSWORD, "003");
     u2.ROLE = 1;
     admins[adminsCount++] = u2;
 
     ENTERPRISE u3;
     strcpy(u1.UUID, "004");
-    strcpy(u1.NAME, "中国南方航空004");
+    strcpy(u1.NAME, "中国南方航空");
     strcpy(u1.PASSWORD, "004");
     enters[entersCount++] = u3;
 
-    saveUsers();
-
-    flightsCount = 0;
-
     FLIGHT f1;
-    strcpy(f1.ID, "001");
-    strcpy(f1.MODEL, "波音737");
-    f1.time = time(NULL);
-    f1.duration = 14400;
-    strcpy(f1.GATE, "A01");
-    strcpy(f1.STARTING, "浙江");
-    strcpy(f1.DESTINATION, "长春");
+    strcpy(f1.CODE, "CZ6546");
+    strcpy(f1.MODEL, "A321neo");
+    strcpy(f1.COMPANY, "中国南方航空");
+    f1.time = timeToTimeT(2025, 6, 18, 8, 30);
+    f1.duration = 11100;
+    strcpy(f1.GATE, "411");
+    strcpy(f1.STARTING, "杭州萧山国际机场");
+    strcpy(f1.DESTINATION, "长春龙嘉国际机场");
     f1.praise = 1000;
     f1.num = 162;
     f1.curr = 100;
+    flights[flightsCount++] = f1;
 
+    saveUsers();
     saveFlishts();
 }
 
@@ -200,14 +222,6 @@ void saveUsers()
     fclose(fp);
 }
 
-void loadUserFlight()
-{
-}
-
-void saveUserFlight()
-{
-}
-
 void loadFlights()
 {
 }
@@ -225,7 +239,8 @@ void login()
     system("cls");
     if (usersCount == 0)
     {
-        printf("系统还没有用户，请先注册");
+        printf("系统还没有用户，请先注册\n");
+        return;
     }
 
     char inputUUID[MAX_UUID_LENGTH];
@@ -248,7 +263,7 @@ void login()
 
                 if (users[i].PASSWORD == inputPassword)
                 {
-                    userMenu();
+                    userMenu(i);
                     return;
                 }
                 else
@@ -319,11 +334,16 @@ void login()
         }
     }
 
-    printf("UUID不存在");
+    printf("UUID不存在\n");
 }
 
-void userMenu()
+void userMenu(int curr)
 {
+    system("cls");
+    printf("-----用户界面-----\n");
+    printf("欢迎!%s\n", users[curr].NAME);
+    printf("请选择功能");
+    printf("---用户界面---");
 }
 
 void adminMenu()
@@ -332,6 +352,22 @@ void adminMenu()
 
 void enterMenu()
 {
+}
+/**
+ * 将时间转化为time_t
+ */
+time_t timeToTimeT(int year, int month, int day, int hour, int minute)
+{
+    struct tm t = {0};
+
+    t.tm_year = year - 1900;
+    t.tm_mon = month - 1;
+    t.tm_mday = day;
+    t.tm_hour = hour;
+    t.tm_min = minute;
+    t.tm_sec = 0;
+
+    return mktime(&t);
 }
 
 /**

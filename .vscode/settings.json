@@ -7,6 +7,7 @@
     "text_encoding": "cpp",
     "typeinfo": "cpp",
     "system_error": "cpp",
-    "*.txt": "cpp"
+    "*.txt": "cpp",
+    "cstdlib": "cpp"
   }
 }
