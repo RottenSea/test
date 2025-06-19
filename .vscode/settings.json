@@ -8,6 +8,7 @@
     "typeinfo": "cpp",
     "system_error": "cpp",
     "*.txt": "cpp",
-    "cstdlib": "cpp"
+    "cstdlib": "cpp",
+    "cmath": "cpp"
   }
 }

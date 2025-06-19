@@ -30,6 +30,19 @@ void userMenu(int curr);
 void adminMenu(int curr);
 void enterMenu(int curr);
 
+void listFlight(char *name);
+void bookFlight();
+void cancleflight();
+
+void addUser();
+void deleteUser();
+void modifyUser();
+void searchUser();
+
+void addFlight();
+void deleteflight();
+void modifyFlight();
+
 int findUserIndexByUUID(char *inputUUID);
 int findAdminIndexByUUID(char *inputUUID);
 int findEnterIndexByUUID(char *inputUUid);
@@ -106,8 +119,8 @@ int main()
         printf("3.退出系统\n");
         printf("-------------------------\n");
         printf("请选择：");
-        scanf("%d", &choice);
 
+        scanf("%d", &choice);
         switch (choice)
         {
         case 1:
@@ -116,13 +129,16 @@ int main()
         case 2:
             login();
             break;
+        case 3:
+            exit(0);
+            break;
 
         default:
-            printf("已退出系统\n");
-            exit(0);
+            printf("输入有误\n");
             break;
         }
     } while (1);
+    return 0;
 }
 
 /**
@@ -385,7 +401,7 @@ void login()
 
                 if (admins[i].PASSWORD == inputPassword)
                 {
-                    adminMenu();
+                    adminMenu(i);
                     return;
                 }
                 else
@@ -413,7 +429,7 @@ void login()
 
                 if (enters[i].PASSWORD == inputPassword)
                 {
-                    enterMenu();
+                    enterMenu(i);
                     return;
                 }
                 else
@@ -433,18 +449,227 @@ void login()
 
 void userMenu(int curr)
 {
-    system("cls");
-    printf("-----用户界面-----\n");
-    printf("欢迎!%s\n", users[curr].NAME);
-    printf("请选择功能");
-    printf("---用户界面---");
+    int choice;
+
+    do
+    {
+        system("cls");
+        printf("-----用户界面-----\n");
+        printf("欢迎!%s\n", users[curr].NAME);
+        printf("1.查询航班\n");
+        printf("2.订购航班\n");
+        printf("3.退订航班\n");
+        printf("4.注销并返回上级菜单\n");
+        printf("-----------------\n");
+        printf("请选择功能:");
+
+        scanf("%d", &choice);
+        switch (choice)
+        {
+        case 1:
+            listFlight("");
+            break;
+        case 2:
+            bookFlight();
+            break;
+        case 3:
+            cancleflight();
+            break;
+        case 4:
+            printf("已注销\n");
+            pressEnterToContinue();
+            return;
+
+        default:
+            printf("输入有误\n");
+            break;
+        }
+    } while (choice != 4);
 }
 
-void adminMenu()
+void adminMenu(int curr)
+{
+    int choice;
+
+    if (admins[curr].ROLE == 0)
+    {
+        do
+        {
+            system("cls");
+            printf("-----管理员界面-----\n");
+            printf("欢迎!%s(用户管理员)\n", admins[curr].NAME);
+            printf("1.增加用户\n");
+            printf("2.删除用户\n");
+            printf("3.修改用户\n");
+            printf("4.查询用户\n");
+            printf("5.注销并返回上级菜单\n");
+            printf("-------------------\n");
+            printf("请选择功能:");
+
+            scanf("%d", &choice);
+            switch (choice)
+            {
+            case 1:
+                addUser();
+                break;
+            case 2:
+                deleteUser();
+                break;
+            case 3:
+                modifyUser();
+                break;
+            case 4:
+                searchUser();
+                break;
+            case 5:
+                printf("已注销\n");
+                pressEnterToContinue();
+                return;
+
+            default:
+                printf("输入有误\n");
+                break;
+            }
+        } while (choice != 5);
+    }
+
+    // 航班管理员
+    else
+    {
+        do
+        {
+            system("cls");
+            printf("-----管理员界面-----\n");
+            printf("欢迎!%s航班管理员\n", admins[curr].NAME);
+            printf("1.查询航班\n");
+            printf("2.增加航班\n");
+            printf("3.删除航班\n");
+            printf("4.修改航班\n");
+            printf("5.注销并返回上级菜单\n");
+            printf("-------------------\n");
+            printf("请选择功能:");
+
+            scanf("%d", &choice);
+            switch (choice)
+            {
+            case 1:
+                listFlight("");
+                break;
+            case 2:
+                addFlight();
+                break;
+            case 3:
+                deleteflight();
+                break;
+            case 4:
+                modifyFlight();
+                break;
+            case 5:
+                printf("已注销\n");
+                pressEnterToContinue();
+                return;
+
+            default:
+                printf("输入有误\n");
+                break;
+            }
+        } while (choice != 5);
+    }
+}
+
+void enterMenu(int curr)
+{
+    int choice;
+
+    do
+    {
+        system("cls");
+        printf("-----航司界面-----\n");
+        printf("欢迎!%s\n", enters[curr].NAME);
+        printf("1.查询航班\n");
+        printf("2.增加航班\n");
+        printf("3.删除航班\n");
+        printf("4.修改航班\n");
+        printf("5.注销并返回上级菜单\n");
+        printf("-------------------\n");
+        printf("请选择功能:");
+
+        scanf("%d", &choice);
+        switch (choice)
+        {
+        case 1:
+            listFlight(enters[curr].NAME);
+            break;
+        case 2:
+            addFlight();
+            break;
+        case 3:
+            deleteflight();
+            break;
+        case 4:
+            modifyFlight();
+            break;
+        case 5:
+            printf("已注销\n");
+            pressEnterToContinue();
+            return;
+
+        default:
+            printf("输入有误\n");
+            break;
+        }
+    } while (choice != 5);
+}
+
+void listFlight(char *name)
 {
 }
 
-void enterMenu()
+void bookFlight()
+{
+}
+
+void cancleflight()
+{
+}
+
+void addUser()
+{
+}
+
+void deleteUser()
+{
+}
+
+void modifyUser()
+{
+}
+
+void searchUser()
+{
+}
+
+void addFlight()
+{
+}
+
+void deleteflight()
+{
+}
+
+void modifyFlight()
+{
+}
+
+int findUserIndexByUUID(char *inputUUID)
+{
+}
+
+int findAdminIndexByUUID(char *inputUUID)
+{
+}
+
+int findEnterIndexByUUID(char *inputUUid)
 {
 }
 
