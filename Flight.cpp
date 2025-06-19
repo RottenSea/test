@@ -30,6 +30,10 @@ void userMenu(int curr);
 void adminMenu(int curr);
 void enterMenu(int curr);
 
+int findUserIndexByUUID(char *inputUUID);
+int findAdminIndexByUUID(char *inputUUID);
+int findEnterIndexByUUID(char *inputUUid);
+
 time_t timeToTimeT(int year, int month, int day, int hour, int minute);
 
 void pressEnterToContinue();
@@ -207,6 +211,22 @@ void initialize()
 
 void loadUsers()
 {
+    FILE *fp = fopen(USER_FILE, "rb");
+    if (fp == NULL)
+    {
+        printf("读取用户时文件打开失败！\n");
+        return;
+    }
+
+    fread(&usersCount, sizeof(int), 1, fp);
+    fread(&adminsCount, sizeof(int), 1, fp);
+    fread(&entersCount, sizeof(int), 1, fp);
+
+    fread(users, sizeof(USER), usersCount, fp);
+    fread(admins, sizeof(ADMINISTRATOR), adminsCount, fp);
+    fread(enters, sizeof(ENTERPRISE), entersCount, fp);
+
+    fclose(fp);
 }
 
 void saveUsers()
@@ -217,21 +237,95 @@ void saveUsers()
         printf("保存用户时文件打开失败！\n");
         return;
     }
+
     fwrite(&usersCount, sizeof(int), 1, fp);
+    fwrite(&adminsCount, sizeof(int), 1, fp);
+    fwrite(&entersCount, sizeof(int), 1, fp);
+
     fwrite(users, sizeof(USER), usersCount, fp);
+    fwrite(admins, sizeof(ADMINISTRATOR), adminsCount, fp);
+    fwrite(enters, sizeof(ENTERPRISE), entersCount, fp);
+
     fclose(fp);
 }
 
 void loadFlights()
 {
+    FILE *fp = fopen(FLIGHTS_FILE, "rb");
+    if (fp == NULL)
+    {
+        printf("读取航班时文件打开失败！\n");
+        return;
+    }
+
+    fread(&flightsCount, sizeof(int), 1, fp);
+    fread(flights, sizeof(FLIGHT), flightsCount, fp);
+
+    fclose(fp);
 }
 
 void saveFlishts()
 {
+    FILE *fp = fopen(FLIGHTS_FILE, "wb");
+    if (fp == NULL)
+    {
+        printf("保存航班时文件打开失败！\n");
+        return;
+    }
+
+    fwrite(&flightsCount, sizeof(int), 1, fp);
+    fwrite(users, sizeof(USER), usersCount, fp);
+
+    fclose(fp);
 }
 
 void reg()
 {
+    printf("-------------------------\n");
+    if (usersCount > MAX_USER_NUMBER)
+    {
+        printf("用户数量已达上限");
+        pressEnterToContinue();
+        return;
+    }
+
+    USER u = {0};
+    printf("UUID:");
+    fgets(u.UUID, MAX_UUID_LENGTH, stdin);
+    u.UUID[strcspn(u.UUID, "\n")] = '\0';
+    if ((findUserIndexByUUID(u.UUID) >= 0) || (findAdminIndexByUUID(u.UUID) >= 0) || (findEnterIndexByUUID(u.UUID) >= 0))
+    {
+        printf("该用户名已存在\n");
+        pressEnterToContinue();
+        return;
+    }
+
+    printf("NAME:");
+    fgets(u.NAME, MAX_NAME_LENGTH, stdin);
+    u.NAME[strcspn(u.NAME, "\n")] = '\0';
+
+    printf("PASSWORD:");
+    fgets(u.PASSWORD, MAX_PASSWORD_LENGTH, stdin);
+    u.PASSWORD[strcspn(u.PASSWORD, "\n")] = '\0';
+
+    printf("PHONE:");
+    fgets(u.PHONE, MAX_PHONE_LENGTH, stdin);
+    u.PHONE[strcspn(u.PHONE, "\n")] = '\0';
+
+    printf("是否立即补充其他信息?\n");
+    printf("0否 1是");
+    int choice = 0;
+    scanf("%d", &choice);
+    if (choice)
+    {
+        printf("gender:");
+        scanf("%d", u.gender);
+        printf("age:");
+        scanf("%d", u.age);
+    }
+
+    users[usersCount++] = u;
+    saveUsers();
 }
 
 void login()
@@ -353,6 +447,7 @@ void adminMenu()
 void enterMenu()
 {
 }
+
 /**
  * 将时间转化为time_t
  */
