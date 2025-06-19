@@ -6,7 +6,6 @@
 !.vscode/extensions.json
 
 /build
-/learn
 *.o
 *.exe
 *.log
