@@ -22,7 +22,7 @@ void initialize();
 void loadUsers();
 void saveUsers();
 void loadFlights();
-void saveFlishts();
+void saveFlights();
 
 void reg();
 void login();
@@ -45,10 +45,10 @@ void modifyFlight();
 
 int findUserIndexByUUID(char *inputUUID);
 int findAdminIndexByUUID(char *inputUUID);
-int findEnterIndexByUUID(char *inputUUid);
+int findEnterIndexByUUID(char *inputUUID);
 
+bool isValidString(char *str);
 time_t timeToTimeT(int year, int month, int day, int hour, int minute);
-
 void pressEnterToContinue();
 
 // 用户信息结构体
@@ -59,7 +59,7 @@ typedef struct
     char PASSWORD[MAX_PASSWORD_LENGTH];
     char PHONE[MAX_PHONE_LENGTH];
     char flights[MAX_USER_FLIGHT][MAX_CODE_LENGTH];
-    int count;
+    int count;  // 已订航班数量
     int gender; // 0未知 1男 2女
     int age;
 } USER;
@@ -121,6 +121,7 @@ int main()
         printf("请选择：");
 
         scanf("%d", &choice);
+        getchar();
         switch (choice)
         {
         case 1:
@@ -135,6 +136,7 @@ int main()
 
         default:
             printf("输入有误\n");
+            pressEnterToContinue();
             break;
         }
     } while (1);
@@ -146,9 +148,12 @@ int main()
  */
 void initialize()
 {
+    FILE *fp1 = NULL;
+    FILE *fp2 = NULL;
+
     // 如果文件已经存在 跳过初始化
-    FILE *fp1 = fopen(USER_FILE, "r");
-    FILE *fp2 = fopen(FLIGHTS_FILE, "r");
+    fp1 = fopen(USER_FILE, "r");
+    fp2 = fopen(FLIGHTS_FILE, "r");
     if (fp1)
         fclose(fp1);
     if (fp2)
@@ -156,16 +161,18 @@ void initialize()
     if (fp1 && fp2)
         return;
 
-    FILE *fp1 = fopen(USER_FILE, "w");
-    FILE *fp2 = fopen(FLIGHTS_FILE, "w");
+    fp1 = fopen(USER_FILE, "w");
+    fp2 = fopen(FLIGHTS_FILE, "w");
     if (fp1 == NULL)
     {
         perror("文件创建失败");
+        pressEnterToContinue();
         return;
     }
     if (fp2 == NULL)
     {
         perror("文件创建失败");
+        pressEnterToContinue();
         return;
     }
     fclose(fp1);
@@ -189,24 +196,25 @@ void initialize()
     users[usersCount++] = u1;
 
     ADMINISTRATOR u2;
-    strcpy(u1.UUID, "002");
-    strcpy(u1.NAME, "用户管理员");
-    strcpy(u1.PASSWORD, "002");
+    strcpy(u2.UUID, "002");
+    strcpy(u2.NAME, "用户管理员");
+    strcpy(u2.PASSWORD, "002");
     u2.ROLE = 0;
     admins[adminsCount++] = u2;
 
-    strcpy(u1.UUID, "003");
-    strcpy(u1.NAME, "航班管理员");
-    strcpy(u1.PASSWORD, "003");
+    strcpy(u2.UUID, "003");
+    strcpy(u2.NAME, "航班管理员");
+    strcpy(u2.PASSWORD, "003");
     u2.ROLE = 1;
     admins[adminsCount++] = u2;
 
     ENTERPRISE u3;
-    strcpy(u1.UUID, "004");
-    strcpy(u1.NAME, "中国南方航空");
-    strcpy(u1.PASSWORD, "004");
+    strcpy(u3.UUID, "004");
+    strcpy(u3.NAME, "中国南方航空");
+    strcpy(u3.PASSWORD, "004");
     enters[entersCount++] = u3;
 
+    // 添加示例航班
     FLIGHT f1;
     strcpy(f1.CODE, "CZ6546");
     strcpy(f1.MODEL, "A321neo");
@@ -222,7 +230,7 @@ void initialize()
     flights[flightsCount++] = f1;
 
     saveUsers();
-    saveFlishts();
+    saveFlights();
 }
 
 void loadUsers()
@@ -280,7 +288,7 @@ void loadFlights()
     fclose(fp);
 }
 
-void saveFlishts()
+void saveFlights()
 {
     FILE *fp = fopen(FLIGHTS_FILE, "wb");
     if (fp == NULL)
@@ -297,7 +305,7 @@ void saveFlishts()
 
 void reg()
 {
-    printf("-------------------------\n");
+    printf("----------注册----------\n");
     if (usersCount > MAX_USER_NUMBER)
     {
         printf("用户数量已达上限");
@@ -306,9 +314,18 @@ void reg()
     }
 
     USER u = {0};
-    printf("UUID:");
+    printf("UUID(3-20位字母和数字):");
     fgets(u.UUID, MAX_UUID_LENGTH, stdin);
     u.UUID[strcspn(u.UUID, "\n")] = '\0';
+    if (strlen(u.UUID) < 3)
+    {
+        printf("UUID过短 至少为3位!\n");
+        pressEnterToContinue();
+    }
+    if (!isValidString(u.UUID))
+    {
+    }
+
     if ((findUserIndexByUUID(u.UUID) >= 0) || (findAdminIndexByUUID(u.UUID) >= 0) || (findEnterIndexByUUID(u.UUID) >= 0))
     {
         printf("该用户名已存在\n");
@@ -332,12 +349,15 @@ void reg()
     printf("0否 1是");
     int choice = 0;
     scanf("%d", &choice);
+    getchar();
     if (choice)
     {
         printf("gender:");
         scanf("%d", u.gender);
+        getchar();
         printf("age:");
         scanf("%d", u.age);
+        getchar();
     }
 
     users[usersCount++] = u;
@@ -359,92 +379,92 @@ void login()
     fgets(inputUUID, MAX_UUID_LENGTH, stdin);
 
     int choice = 0;
+    int index = -1;
 
     // 在users中查找该用户
-    for (int i = 0; i < usersCount; ++i)
+    index = findUserIndexByUUID(inputUUID);
+    if (index >= 0)
     {
-        if (users[i].UUID == inputUUID)
+        do
         {
-            do
-            {
-                char inputPassword[MAX_PASSWORD_LENGTH];
-                printf("password:");
-                fgets(inputPassword, MAX_PASSWORD_LENGTH, stdin);
+            char inputPassword[MAX_PASSWORD_LENGTH];
+            printf("password:");
+            fgets(inputPassword, MAX_PASSWORD_LENGTH, stdin);
 
-                if (users[i].PASSWORD == inputPassword)
-                {
-                    userMenu(i);
-                    return;
-                }
-                else
-                {
-                    printf("密码输入错误,是否重新输入\n");
-                    printf("0取消并返回上级目录\n");
-                    printf("1重新输入密码\n");
-                    printf("选择:");
-                    scanf("%d", &choice);
-                }
-            } while (choice);
-        }
+            if (users[index].PASSWORD == inputPassword)
+            {
+                userMenu(index);
+                return;
+            }
+            else
+            {
+                printf("密码输入错误,是否重新输入\n");
+                printf("0取消并返回上级目录\n");
+                printf("1重新输入密码\n");
+                printf("选择:");
+                scanf("%d", &choice);
+                getchar();
+            }
+        } while (choice);
     }
 
     // 在admins中查找该用户
-    for (int i = 0; i < adminsCount; ++i)
+    index = findAdminIndexByUUID(inputUUID);
+    if (index >= 0)
     {
-        if (admins[i].UUID == inputUUID)
+        do
         {
-            do
-            {
-                char inputPassword[MAX_PASSWORD_LENGTH];
-                printf("password:");
-                fgets(inputPassword, MAX_PASSWORD_LENGTH, stdin);
+            char inputPassword[MAX_PASSWORD_LENGTH];
+            printf("password:");
+            fgets(inputPassword, MAX_PASSWORD_LENGTH, stdin);
 
-                if (admins[i].PASSWORD == inputPassword)
-                {
-                    adminMenu(i);
-                    return;
-                }
-                else
-                {
-                    printf("密码输入错误,是否重新输入\n");
-                    printf("0取消并返回上级目录\n");
-                    printf("1重新输入密码\n");
-                    printf("选择:");
-                    scanf("%d", &choice);
-                }
-            } while (choice);
-        }
+            if (admins[index].PASSWORD == inputPassword)
+            {
+                adminMenu(index);
+                return;
+            }
+            else
+            {
+                printf("密码输入错误,是否重新输入\n");
+                printf("0取消并返回上级目录\n");
+                printf("1重新输入密码\n");
+                printf("选择:");
+                scanf("%d", &choice);
+                getchar();
+            }
+        } while (choice);
     }
 
     // 在enters中查找该用户
-    for (int i = 0; i < entersCount; ++i)
+    index = findEnterIndexByUUID(inputUUID);
+    if (index >= 0)
     {
-        if (enters[i].UUID == inputUUID)
+        do
         {
-            do
-            {
-                char inputPassword[MAX_PASSWORD_LENGTH];
-                printf("password:");
-                fgets(inputPassword, MAX_PASSWORD_LENGTH, stdin);
+            char inputPassword[MAX_PASSWORD_LENGTH];
+            printf("password:");
+            fgets(inputPassword, MAX_PASSWORD_LENGTH, stdin);
 
-                if (enters[i].PASSWORD == inputPassword)
-                {
-                    enterMenu(i);
-                    return;
-                }
-                else
-                {
-                    printf("密码输入错误,是否重新输入\n");
-                    printf("0取消并返回上级目录\n");
-                    printf("1重新输入密码\n");
-                    printf("选择:");
-                    scanf("%d", &choice);
-                }
-            } while (choice);
-        }
+            if (enters[index].PASSWORD == inputPassword)
+            {
+                enterMenu(index);
+                return;
+            }
+            else
+            {
+                printf("密码输入错误,是否重新输入\n");
+                printf("0取消并返回上级目录\n");
+                printf("1重新输入密码\n");
+                printf("选择:");
+                scanf("%d", &choice);
+                getchar();
+            }
+        } while (choice);
     }
 
     printf("UUID不存在\n");
+    pressEnterToContinue();
+    return;
 }
 
 void userMenu(int curr)
@@ -464,6 +484,7 @@ void userMenu(int curr)
         printf("请选择功能:");
 
         scanf("%d", &choice);
+        getchar();
         switch (choice)
         {
         case 1:
@@ -507,6 +528,7 @@ void adminMenu(int curr)
             printf("请选择功能:");
 
             scanf("%d", &choice);
+            getchar();
             switch (choice)
             {
             case 1:
@@ -550,6 +572,7 @@ void adminMenu(int curr)
             printf("请选择功能:");
 
             scanf("%d", &choice);
+            getchar();
             switch (choice)
             {
             case 1:
@@ -595,6 +618,7 @@ void enterMenu(int curr)
         printf("请选择功能:");
 
         scanf("%d", &choice);
+        getchar();
         switch (choice)
         {
         case 1:
@@ -663,13 +687,44 @@ void modifyFlight()
 
 int findUserIndexByUUID(char *inputUUID)
 {
+    for (int i = 0; i < usersCount; ++i)
+    {
+        if (users[i].UUID == inputUUID)
+        {
+            return i;
+        }
+    }
+
+    return -1;
 }
 
 int findAdminIndexByUUID(char *inputUUID)
 {
+    for (int i = 0; i < adminsCount; ++i)
+    {
+        if (admins[i].UUID == inputUUID)
+        {
+            return i;
+        }
+    }
+
+    return -1;
 }
 
-int findEnterIndexByUUID(char *inputUUid)
+int findEnterIndexByUUID(char *inputUUID)
+{
+    for (int i = 0; i < entersCount; ++i)
+    {
+        if (enters[i].UUID == inputUUID)
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+bool isValidString(char *str)
 {
 }
 
