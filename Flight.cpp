@@ -33,13 +33,13 @@ void adminMenu(int curr);
 void enterMenu(int curr);
 
 void listFlight(const char *name);
-char *departureTime(int index);
-char *arrivalTime(int index);
+wchar_t *departureTime(int index);
+wchar_t *arrivalTime(int index);
 int countFlightRemain(int index);
-char calStatus(int index);
+wchar_t *calStatus(int index);
 
-void bookFlight();
-void cancleflight();
+void bookFlight(int index);
+void cancleflight(int index);
 
 void addUser();
 void deleteUser();
@@ -386,6 +386,7 @@ void login()
 
     printf("UUID:");
     fgets(inputUUID, MAX_UUID_LENGTH, stdin);
+    inputUUID[strcspn(inputUUID, "\n")] = '\0';
 
     int choice = 0;
     int index = -1;
@@ -399,6 +400,7 @@ void login()
             char inputPassword[MAX_PASSWORD_LENGTH];
             printf("password:");
             fgets(inputPassword, MAX_PASSWORD_LENGTH, stdin);
+            inputPassword[strcspn(inputPassword, "\n")] = '\0';
 
             if (users[index].PASSWORD == inputPassword)
             {
@@ -426,6 +428,7 @@ void login()
             char inputPassword[MAX_PASSWORD_LENGTH];
             printf("password:");
             fgets(inputPassword, MAX_PASSWORD_LENGTH, stdin);
+            inputPassword[strcspn(inputPassword, "\n")] = '\0';
 
             if (admins[index].PASSWORD == inputPassword)
             {
@@ -453,6 +456,7 @@ void login()
             char inputPassword[MAX_PASSWORD_LENGTH];
             printf("password:");
             fgets(inputPassword, MAX_PASSWORD_LENGTH, stdin);
+            inputPassword[strcspn(inputPassword, "\n")] = '\0';
 
             if (enters[index].PASSWORD == inputPassword)
             {
@@ -500,10 +504,10 @@ void userMenu(int curr)
             listFlight("");
             break;
         case 2:
-            bookFlight();
+            bookFlight(curr);
             break;
         case 3:
-            cancleflight();
+            cancleflight(curr);
             break;
         case 4:
             printf("已注销\n");
@@ -676,23 +680,110 @@ void listFlight(const char *name)
     }
 }
 
-char *departureTime(int index)
+wchar_t *departureTime(int index)
 {
-    static char buffer[6];
+    static wchar_t buffer[6];
     struct tm *timeinfo = localtime(&(flights[index].time));
-    snprintf(buffer, sizeof(buffer), "%02d:%02d", timeinfo->tm_hour, timeinfo->tm_min);
+    swprintf(buffer, sizeof(buffer), L"%02d:%02d", timeinfo->tm_hour, timeinfo->tm_min);
     return buffer;
 }
 
-char *arrivalTime(int index)
+wchar_t *arrivalTime(int index)
 {
+    static wchar_t buffer[6];
+    time_t arrivalTime = flights[index].time + flights[index].duration;
+    struct tm *timeinfo = localtime(&arrivalTime);
+    swprintf(buffer, sizeof(buffer), L"%02d:%02d", timeinfo->tm_hour, timeinfo->tm_min);
+    return buffer;
 }
 
 int countFlightRemain(int index)
 {
+    return (flights[index].num - flights[index].curr);
 }
 
-char calStatus(int index)
+wchar_t *calStatus(int index)
+{
+    static wchar_t buffer[6];
+    time_t curr = time(NULL);
+    if (curr < flights[index].time)
+    {
+        wcscpy(buffer, L"未起飞");
+    }
+    else if ((curr >= flights[index].time) && (curr < flights[index].time + flights[index].duration))
+    {
+        wcscpy(buffer, L"飞行中");
+    }
+    else
+    {
+        wcscpy(buffer, L"已到达");
+    }
+
+    return buffer;
+}
+
+void bookFlight(int index)
+{
+    if (users[index].count > MAX_USER_FLIGHT)
+    {
+        printf("超过可订购航班数量\n");
+        pressEnterToContinue();
+        return;
+    }
+
+    char inputCode[MAX_CODE_LENGTH];
+    printf("请输入你想要订购的航班号(CODE): ");
+    fgets(inputCode, MAX_CODE_LENGTH, stdin);
+    inputCode[strcspn(inputCode, "\n")] = '\0';
+
+    int findFlightIndex[MAX_FLIGHT_NUMBER] = {0};
+    int p = 0;
+    for (int i = 0; i < flightsCount; ++i)
+    {
+        if (flights[i].CODE == inputCode)
+        {
+            findFlightIndex[p++] = i;
+        }
+    }
+
+    if (p == 0)
+    {
+        printf("未找到航班号为 %s 的航班\n");
+        pressEnterToContinue();
+        return;
+    }
+    printf("找到的航班号:\n");
+    for (int i = 0; i < p; ++i)
+    {
+        printf("%d %s", i + 1, flights[findFlightIndex[i]]);
+    }
+
+    printf("请输入你想要订购的航班: ");
+    int inputBookFlight = fgetc(stdin);
+    if (inputBookFlight = EOF)
+    {
+        printf("输入错误\n");
+        pressEnterToContinue();
+        return;
+    }
+
+    printf("请支付金额: %d元\n", flights[inputBookFlight - 1].praise);
+    bool payRes = false;
+    printf("是否成功支付(0失败 1成功): \n");
+    scanf("%d", &payRes);
+    getchar();
+    if (!payRes)
+    {
+        printf("订购失败\n");
+        pressEnterToContinue();
+        return;
+    }
+
+    strcpy(users[index].flights[users[index].count++], inputCode);
+    printf("预定成功\n");
+}
+
+void cancleflight(int index)
 {
 }
 

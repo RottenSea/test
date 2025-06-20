@@ -7,8 +7,10 @@
     "text_encoding": "cpp",
     "typeinfo": "cpp",
     "system_error": "cpp",
-    "*.txt": "cpp",
     "cstdlib": "cpp",
-    "cmath": "cpp"
+    "cmath": "cpp",
+    "ranges": "cpp",
+    "variant": "cpp",
+    "random": "cpp"
   }
 }
