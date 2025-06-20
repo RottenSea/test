@@ -30,7 +30,7 @@ void userMenu(int curr);
 void adminMenu(int curr);
 void enterMenu(int curr);
 
-void listFlight(char *name);
+void listFlight(const char *name);
 void bookFlight();
 void cancleflight();
 
@@ -47,7 +47,7 @@ int findUserIndexByUUID(char *inputUUID);
 int findAdminIndexByUUID(char *inputUUID);
 int findEnterIndexByUUID(char *inputUUID);
 
-bool isValidString(char *str);
+bool isValidStringUUID(char *str);
 time_t timeToTimeT(int year, int month, int day, int hour, int minute);
 void pressEnterToContinue();
 
@@ -317,13 +317,11 @@ void reg()
     printf("UUID(3-20位字母和数字):");
     fgets(u.UUID, MAX_UUID_LENGTH, stdin);
     u.UUID[strcspn(u.UUID, "\n")] = '\0';
-    if (strlen(u.UUID) < 3)
+    if (!isValidStringUUID(u.UUID))
     {
-        printf("UUID过短 至少为3位!\n");
+        printf("输入的UUID不符合规范");
         pressEnterToContinue();
-    }
-    if (!isValidString(u.UUID))
-    {
+        return;
     }
 
     if ((findUserIndexByUUID(u.UUID) >= 0) || (findAdminIndexByUUID(u.UUID) >= 0) || (findEnterIndexByUUID(u.UUID) >= 0))
@@ -645,7 +643,7 @@ void enterMenu(int curr)
     } while (choice != 5);
 }
 
-void listFlight(char *name)
+void listFlight(const char *name)
 {
 }
 
@@ -724,8 +722,22 @@ int findEnterIndexByUUID(char *inputUUID)
     return -1;
 }
 
-bool isValidString(char *str)
+bool isValidStringUUID(char *str)
 {
+    int len = strlen(str);
+    if (len < 3)
+    {
+        printf("UUID过短 至少为3位\n");
+        return false;
+    }
+    for (int i = 0; i < len; ++i)
+    {
+        if (!(((str[i] >= 'a') && (str[i] <= 'z')) || ((str[i] >= 'A') && (str[i] <= 'Z')) || ((str[i] >= '0') && (str[i] <= '9'))))
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 /**
