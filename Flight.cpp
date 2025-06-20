@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <wchar.h>
+#include <locale.h>
 
 #define MAX_USER_NUMBER 100
 #define MAX_ADMINISTRATOR_NUMBER 100
@@ -31,6 +33,11 @@ void adminMenu(int curr);
 void enterMenu(int curr);
 
 void listFlight(const char *name);
+char *departureTime(int index);
+char *arrivalTime(int index);
+int countFlightRemain(int index);
+char calStatus(int index);
+
 void bookFlight();
 void cancleflight();
 
@@ -48,6 +55,7 @@ int findAdminIndexByUUID(char *inputUUID);
 int findEnterIndexByUUID(char *inputUUID);
 
 bool isValidStringUUID(char *str);
+time_t dateTotime(const char *str, int hour, int minute);
 time_t timeToTimeT(int year, int month, int day, int hour, int minute);
 void pressEnterToContinue();
 
@@ -93,6 +101,7 @@ typedef struct
     char CODE[MAX_CODE_LENGTH];
     char MODEL[MAX_NAME_LENGTH];
     char COMPANY[MAX_NAME_LENGTH];
+    char date[11];
     time_t time;
     time_t duration;
     char GATE[MAX_NAME_LENGTH];
@@ -107,6 +116,7 @@ int flightsCount = 0;
 
 int main()
 {
+    setlocale(LC_ALL, "");
     initialize();
 
     int choice;
@@ -219,13 +229,14 @@ void initialize()
     strcpy(f1.CODE, "CZ6546");
     strcpy(f1.MODEL, "A321neo");
     strcpy(f1.COMPANY, "中国南方航空");
-    f1.time = timeToTimeT(2025, 6, 18, 8, 30);
+    strcpy(f1.date, "2025-06-18");
+    f1.time = dateTotime(f1.date, 11, 50);
     f1.duration = 11100;
     strcpy(f1.GATE, "411");
     strcpy(f1.STARTING, "杭州萧山国际机场");
     strcpy(f1.DESTINATION, "长春龙嘉国际机场");
     f1.praise = 1000;
-    f1.num = 162;
+    f1.num = 200;
     f1.curr = 100;
     flights[flightsCount++] = f1;
 
@@ -319,7 +330,7 @@ void reg()
     u.UUID[strcspn(u.UUID, "\n")] = '\0';
     if (!isValidStringUUID(u.UUID))
     {
-        printf("输入的UUID不符合规范");
+        printf("UUID不符合规范");
         pressEnterToContinue();
         return;
     }
@@ -645,41 +656,43 @@ void enterMenu(int curr)
 
 void listFlight(const char *name)
 {
+    printf("当前航班数量: %d\n", flightsCount);
+    printf("----------航班列表----------\n");
+    wprintf(L"%-10ls%-10ls%-20ls%-8ls%-8ls%-8ls%-20ls%-20ls%-8ls%-8ls%-8ls\n", L"航班号", L"机型", L"承办公司", L"日期", L"出发时间", L"到达时间", L"始发地", L"目的地", L"价格", L"剩余", L"状态");
+    if (name == "")
+    {
+        for (int i = 0; i < flightsCount; ++i)
+        {
+            wprintf(L"%-10ls%-10ls%-20ls%-8ls%-8ls%-8ls%-20ls%-20ls%-8d%-8d%-8ls\n", flights[i].CODE, flights[i].MODEL, flights[i].COMPANY, flights[i].date, departureTime(i), arrivalTime(i), flights[i].STARTING, flights[i].DESTINATION, flights[i].praise, countFlightRemain(i), calStatus(i));
+        }
+    }
+    else
+    {
+        for (int i = 0; i < flightsCount; ++i)
+            if (flights[i].COMPANY == name)
+            {
+                wprintf(L"%-10ls%-10ls%-20ls%-8ls%-8ls%-8ls%-20ls%-20ls%-8d%-8d%-8ls\n", flights[i].CODE, flights[i].MODEL, flights[i].COMPANY, flights[i].date, departureTime(i), arrivalTime(i), flights[i].STARTING, flights[i].DESTINATION, flights[i].praise, countFlightRemain(i), calStatus(i));
+            }
+    }
 }
 
-void bookFlight()
+char *departureTime(int index)
+{
+    static char buffer[6];
+    struct tm *timeinfo = localtime(&(flights[index].time));
+    snprintf(buffer, sizeof(buffer), "%02d:%02d", timeinfo->tm_hour, timeinfo->tm_min);
+    return buffer;
+}
+
+char *arrivalTime(int index)
 {
 }
 
-void cancleflight()
+int countFlightRemain(int index)
 {
 }
 
-void addUser()
-{
-}
-
-void deleteUser()
-{
-}
-
-void modifyUser()
-{
-}
-
-void searchUser()
-{
-}
-
-void addFlight()
-{
-}
-
-void deleteflight()
-{
-}
-
-void modifyFlight()
+char calStatus(int index)
 {
 }
 
@@ -738,6 +751,17 @@ bool isValidStringUUID(char *str)
         }
     }
     return true;
+}
+
+time_t dateTotime(const char *str, int hour, int minute)
+{
+    int year, month, day;
+    if (sscanf(str, "%d-%d-%d", &year, &month, &day) != 3)
+    {
+        fprintf(stderr, "日期格式错误: %s\n", str);
+        return 0;
+    }
+    return timeToTimeT(year, month, day, hour, minute);
 }
 
 /**
