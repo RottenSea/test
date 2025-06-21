@@ -12,7 +12,7 @@
 #define MAX_FLIGHT_NUMBER 100
 
 #define MAX_UUID_LENGTH 21
-#define MAX_NAME_LENGTH 21
+#define MAX_NAME_LENGTH 31
 #define MAX_PASSWORD_LENGTH 21
 #define MAX_PHONE_LENGTH 12
 #define MAX_CODE_LENGTH 31
@@ -57,6 +57,8 @@ bool isValidStringUUID(char *str);
 bool isValidStringNAME(char *str);
 bool isValidStringPASSWORD(char *str);
 bool isValidStringPHONE(char *str);
+bool isValidGender(int gender);
+bool isValidAge(int age);
 
 int visualWidth(const wchar_t *str);
 void wprintAlign(const wchar_t *str, int total_width);
@@ -123,23 +125,24 @@ int main()
 {
     setlocale(LC_ALL, "");
     initialize();
+    loadUsers();
+    loadFlights();
 
     int choice;
     char c;
     do
     {
         system("cls");
-        listFlight("");
         printf("-----航班信息管理系统-----\n");
-        printf("1.注册\n");
-        printf("2.登录\n");
-        printf("0.退出系统\n");
-        printf("-------------------------\n");
+        printf("1 注册\n");
+        printf("2 登录\n");
+        printf("0 退出系统\n");
+        printf("--------------------------\n");
         printf("请选择：");
 
         if (scanf("%d%c", &choice, &c) != 2 || c != '\n')
         {
-            printf("无效输入，请输入一个有效的数字选项。\n");
+            printf("无效输入 请输入一个有效的数字选项\n");
             while ((c = getchar()) != '\n' && c != EOF)
                 ;
         }
@@ -157,10 +160,12 @@ int main()
                 printf("退出系统\n");
                 break;
             default:
-                printf("无效选项，请重新选择。\n");
+                printf("无效选项 请输入一个有效的数字选项\n");
             }
         }
-    } while (choice != 3);
+    } while (choice != 0);
+
+    return 0;
 }
 
 /**
@@ -373,28 +378,51 @@ void reg()
         return;
     }
 
-    printf("PHONE:");
+    printf("PHONE(3-20位字母和数字): ");
     fgets(u.PHONE, MAX_PHONE_LENGTH, stdin);
     u.PHONE[strcspn(u.PHONE, "\n")] = '\0';
-    if (isValidStringPHONE(u.PHONE))
+    if (!isValidStringPHONE(u.PHONE))
     {
         printf("PASSWORD 不符合规范\n");
         pressEnterToContinue();
         return;
     }
 
-    int choice = 0;
+    int choice;
+    char c;
     printf("是否立即补充其他信息?\n");
-    printf("0否 1是");
-    scanf("%d", &choice);
-    getchar();
+    printf("0否 1是\n");
+    printf("选择: ");
+    while (scanf("%d%c", &choice, &c) != 2 || c != '\n')
+    {
+        printf("无效输入 请输入一个有效的数字选项\n");
+        while ((c = getchar()) != '\n' && c != EOF)
+            ;
+    }
+
     if (choice)
     {
-        printf("gender:");
-        scanf("%d", u.gender);
-        getchar();
-        printf("age:");
-        scanf("%d", u.age);
+        do
+        {
+            printf("0 默认");
+            printf("1 男");
+            printf("2 女");
+            printf("gender(0-2):");
+            if (scanf("%d%c", &u.gender, &c) != 2 || c != '\n')
+            {
+                printf("无效输入 请输入一个有效的数字选项\n");
+                while ((c = getchar()) != '\n' && c != EOF)
+                    ;
+            }
+            else
+                (!isValidGender(u.gender))
+                {
+                    printf("输入不符合规范\n");
+                }
+        } while (choice != 0)
+
+            printf("age:");
+        scanf("%d", &u.age);
         getchar();
     }
 
@@ -417,7 +445,7 @@ void login()
     fgets(inputUUID, MAX_UUID_LENGTH, stdin);
     inputUUID[strcspn(inputUUID, "\n")] = '\0';
 
-    int choice = 0;
+    int choice;
     int index = -1;
 
     // 在users中查找该用户
@@ -1070,6 +1098,38 @@ bool isValidStringPHONE(char *str)
     return true;
 }
 
+bool isValidGender(int gender)
+{
+    if (gender < 0)
+    {
+        return false;
+    }
+    else if (gender > 2)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+bool isValidAge(int age)
+{
+    if (age < 0)
+    {
+        return false;
+    }
+    else if (age <= 150)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
 int visualWidth(const wchar_t *str)
 {
     int width = 0;
@@ -1089,7 +1149,9 @@ void wprintAlign(const wchar_t *str, int total_width)
     int width = visualWidth(str);
     wprintf(L"%ls", str);
     for (int i = 0; i < total_width - width; ++i)
+    {
         wprintf(L" ");
+    }
 }
 
 time_t dateTotime(const char *str, int hour, int minute)
