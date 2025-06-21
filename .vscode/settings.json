@@ -11,6 +11,11 @@
     "cmath": "cpp",
     "ranges": "cpp",
     "variant": "cpp",
-    "random": "cpp"
+    "random": "cpp",
+    "array": "cpp",
+    "memory": "cpp",
+    "functional": "cpp",
+    "tuple": "cpp",
+    "utility": "cpp"
   }
 }

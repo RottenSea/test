@@ -50,6 +50,7 @@ $(BINDIR)/%.exe: %.o
 # clean up
 clean:
 	rm -f *.o
+	rm -f *.dat
 	rm -f *.exe
 	rm -rf $(BINDIR)
 
