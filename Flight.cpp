@@ -1,3 +1,10 @@
+/**
+ * 别忘了把 fgets 加上跨平台缓冲区清空
+ * 如果假如 void safeInput(char *dest, int maxLen);
+ * 只要调用一次 safeInput(u.UUID, MAX_UUID_LENGTH); 就能自动完成以上所有处理
+ * 有待讨论
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -64,6 +71,7 @@ int visualWidth(const wchar_t *str);
 void wprintAlign(const wchar_t *str, int total_width);
 time_t dateTotime(const char *str, int hour, int minute);
 time_t timeToTimeT(int year, int month, int day, int hour, int minute);
+void clearInputBuffer();
 void pressEnterToContinue();
 
 // 用户信息结构体
@@ -124,6 +132,7 @@ int flightsCount = 0;
 int main()
 {
     setlocale(LC_ALL, "");
+    
     initialize();
     loadUsers();
     loadFlights();
@@ -140,7 +149,7 @@ int main()
         printf("--------------------------\n");
         printf("请选择：");
 
-        if (scanf("%d%c", &choice, &c) != 2 || c != '\n')
+        if (scanf("%d%c", &choice, &c) != 2 || c != '\n' || choice != 0 && choice != 1)
         {
             printf("无效输入 请输入一个有效的数字选项\n");
             while ((c = getchar()) != '\n' && c != EOF)
@@ -343,6 +352,10 @@ void reg()
     USER u = {0};
     printf("UUID(3-20位字母和数字):");
     fgets(u.UUID, MAX_UUID_LENGTH, stdin);
+    if (strchr(u.UUID, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
     u.UUID[strcspn(u.UUID, "\n")] = '\0';
     if (!isValidStringUUID(u.UUID))
     {
@@ -359,7 +372,11 @@ void reg()
     }
 
     printf("NAME(3-20个字符): ");
-    fgets(u.NAME, MAX_NAME_LENGTH, stdin);
+    fgets(u.NAME, MAX_UUID_LENGTH, stdin);
+    if (strchr(u.NAME, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
     u.NAME[strcspn(u.NAME, "\n")] = '\0';
     if (!isValidStringNAME(u.NAME))
     {
@@ -369,7 +386,11 @@ void reg()
     }
 
     printf("PASSWORD(3-20位字母和数字): ");
-    fgets(u.PASSWORD, MAX_PASSWORD_LENGTH, stdin);
+    fgets(u.PASSWORD, MAX_UUID_LENGTH, stdin);
+    if (strchr(u.PASSWORD, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
     u.PASSWORD[strcspn(u.PASSWORD, "\n")] = '\0';
     if (!isValidStringPASSWORD(u.PASSWORD))
     {
@@ -379,7 +400,11 @@ void reg()
     }
 
     printf("PHONE(3-20位字母和数字): ");
-    fgets(u.PHONE, MAX_PHONE_LENGTH, stdin);
+    fgets(u.PHONE, MAX_UUID_LENGTH, stdin);
+    if (strchr(u.PHONE, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
     u.PHONE[strcspn(u.PHONE, "\n")] = '\0';
     if (!isValidStringPHONE(u.PHONE))
     {
@@ -393,7 +418,7 @@ void reg()
     printf("是否立即补充其他信息?\n");
     printf("0否 1是\n");
     printf("选择: ");
-    while (scanf("%d%c", &choice, &c) != 2 || c != '\n')
+    while (scanf("%d%c", &choice, &c) != 2 || c != '\n' || choice != 0 && choice != 1)
     {
         printf("无效输入 请输入一个有效的数字选项\n");
         while ((c = getchar()) != '\n' && c != EOF)
@@ -402,28 +427,34 @@ void reg()
 
     if (choice)
     {
-        do
+        while (1)
         {
-            printf("0 默认");
-            printf("1 男");
-            printf("2 女");
-            printf("gender(0-2):");
-            if (scanf("%d%c", &u.gender, &c) != 2 || c != '\n')
-            {
-                printf("无效输入 请输入一个有效的数字选项\n");
-                while ((c = getchar()) != '\n' && c != EOF)
-                    ;
-            }
-            else
-                (!isValidGender(u.gender))
-                {
-                    printf("输入不符合规范\n");
-                }
-        } while (choice != 0)
+            printf("0 默认\n");
+            printf("1 男\n");
+            printf("2 女\n");
+            printf("gender:");
 
-            printf("age:");
-        scanf("%d", &u.age);
-        getchar();
+            if (scanf("%d%c", &u.gender, &c) == 2 && c == '\n' && isValidGender(u.gender))
+            {
+                break;
+            }
+            printf("输入不符合规范\n");
+            while ((c = getchar()) != '\n' && c != EOF)
+                ;
+        }
+
+        while (1)
+        {
+            printf("age(0-150):");
+
+            if (scanf("%d%c", &u.age, &c) == 2 && c == '\n' && isValidAge(u.age))
+            {
+                break;
+            }
+            printf("输入不符合规范\n");
+            while ((c = getchar()) != '\n' && c != EOF)
+                ;
+        }
     }
 
     users[usersCount++] = u;
@@ -433,19 +464,24 @@ void reg()
 void login()
 {
     system("cls");
+    printf("-----登录-----\n");
     if (usersCount == 0)
     {
         printf("系统还没有用户，请先注册\n");
         return;
     }
 
-    printf("-----登录-----");
     char inputUUID[MAX_UUID_LENGTH];
     printf("UUID: ");
     fgets(inputUUID, MAX_UUID_LENGTH, stdin);
+    if (strchr(inputUUID, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
     inputUUID[strcspn(inputUUID, "\n")] = '\0';
 
     int choice;
+    char c;
     int index = -1;
 
     // 在users中查找该用户
@@ -456,7 +492,11 @@ void login()
         {
             char inputPassword[MAX_PASSWORD_LENGTH];
             printf("PASSWORD: ");
-            fgets(inputPassword, MAX_PASSWORD_LENGTH, stdin);
+            fgets(inputPassword, MAX_UUID_LENGTH, stdin);
+            if (strchr(inputPassword, '\n') == NULL)
+            {
+                clearInputBuffer();
+            }
             inputPassword[strcspn(inputPassword, "\n")] = '\0';
 
             if (strcmp(users[index].PASSWORD, inputPassword) == 0)
@@ -470,11 +510,14 @@ void login()
                 printf("0 取消并返回上级目录\n");
                 printf("1 重新输入密码\n");
                 printf("选择:");
-                scanf("%d", &choice);
-                getchar();
+                while (scanf("%d%c", &choice, &c) != 2 || c != '\n' || choice != 0 && choice != 1)
+                {
+                    printf("无效输入 请输入一个有效的数字选项\n");
+                    while ((c = getchar()) != '\n' && c != EOF)
+                        ;
+                }
             }
         } while (choice);
-        printf("返回上级目录\n");
         pressEnterToContinue();
         return;
     }
@@ -487,7 +530,11 @@ void login()
         {
             char inputPassword[MAX_PASSWORD_LENGTH];
             printf("PASSWORD: ");
-            fgets(inputPassword, MAX_PASSWORD_LENGTH, stdin);
+            fgets(inputPassword, MAX_UUID_LENGTH, stdin);
+            if (strchr(inputPassword, '\n') == NULL)
+            {
+                clearInputBuffer();
+            }
             inputPassword[strcspn(inputPassword, "\n")] = '\0';
 
             if (strcmp(admins[index].PASSWORD, inputPassword) == 0)
@@ -501,11 +548,14 @@ void login()
                 printf("0 取消并返回上级目录\n");
                 printf("1 重新输入密码\n");
                 printf("选择:");
-                scanf("%d", &choice);
-                getchar();
+                while (scanf("%d%c", &choice, &c) != 2 || c != '\n' || choice != 0 && choice != 1)
+                {
+                    printf("无效输入 请输入一个有效的数字选项\n");
+                    while ((c = getchar()) != '\n' && c != EOF)
+                        ;
+                }
             }
         } while (choice);
-        printf("返回上级目录\n");
         pressEnterToContinue();
         return;
     }
@@ -518,7 +568,11 @@ void login()
         {
             char inputPassword[MAX_PASSWORD_LENGTH];
             printf("PASSWORD: ");
-            fgets(inputPassword, MAX_PASSWORD_LENGTH, stdin);
+            fgets(inputPassword, MAX_UUID_LENGTH, stdin);
+            if (strchr(inputPassword, '\n') == NULL)
+            {
+                clearInputBuffer();
+            }
             inputPassword[strcspn(inputPassword, "\n")] = '\0';
 
             if (strcmp(enters[index].PASSWORD, inputPassword) == 0)
@@ -532,11 +586,14 @@ void login()
                 printf("0 取消并返回上级目录\n");
                 printf("1 重新输入密码\n");
                 printf("选择:");
-                scanf("%d", &choice);
-                getchar();
+                while (scanf("%d%c", &choice, &c) != 2 || c != '\n' || choice != 0 && choice != 1)
+                {
+                    printf("无效输入 请输入一个有效的数字选项\n");
+                    while ((c = getchar()) != '\n' && c != EOF)
+                        ;
+                }
             }
         } while (choice);
-        printf("返回上级目录\n");
         pressEnterToContinue();
         return;
     }
@@ -853,7 +910,11 @@ void bookFlight(int index)
 
     char inputCode[MAX_CODE_LENGTH];
     printf("请输入你想要订购的航班号(CODE): ");
-    fgets(inputCode, MAX_CODE_LENGTH, stdin);
+    fgets(inputCode, MAX_UUID_LENGTH, stdin);
+    if (strchr(inputCode, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
     inputCode[strcspn(inputCode, "\n")] = '\0';
 
     int findFlightIndex[MAX_FLIGHT_NUMBER] = {0};
@@ -1182,11 +1243,19 @@ time_t timeToTimeT(int year, int month, int day, int hour, int minute)
     return mktime(&t);
 }
 
+void clearInputBuffer()
+{
+    int ch;
+    while ((ch = getchar()) != '\n' && ch != EOF)
+        ;
+}
+
 /**
  * 按回车键继续
  */
 void pressEnterToContinue()
 {
     printf("\n按回车键继续...");
-    getchar();
+    while (getchar() != '\n')
+        ;
 }
