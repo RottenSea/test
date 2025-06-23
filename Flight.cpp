@@ -3,6 +3,14 @@
  * 如果假如 void safeInput(char *dest, int maxLen);
  * 只要调用一次 safeInput(u.UUID, MAX_UUID_LENGTH); 就能自动完成以上所有处理
  * 有待讨论
+ *
+ * 检查fgets的逻辑 是否需要循环
+ *
+ * wprintf需要更改逻辑
+ *
+ * scanf需要检查缓冲区
+ *
+ * 用户航班的保存需要日期
  */
 
 #include <stdio.h>
@@ -23,6 +31,8 @@
 #define MAX_PASSWORD_LENGTH 21
 #define MAX_PHONE_LENGTH 12
 #define MAX_CODE_LENGTH 31
+#define MAX_DATE_LENGTH 11
+#define MAX_TIME_LENGTH 6
 
 const char *USER_FILE = "Users.dat";
 const char *FLIGHTS_FILE = "Flights.dat";
@@ -45,7 +55,7 @@ wchar_t *arrivalTime(int index);
 int countFlightRemain(int index);
 wchar_t *calStatus(int index);
 void bookFlight(int index);
-void cancleflight(int index);
+void cancleFlight(int index);
 
 void addUser();
 void deleteUser();
@@ -66,6 +76,19 @@ bool isValidStringPASSWORD(char *str);
 bool isValidStringPHONE(char *str);
 bool isValidGender(int gender);
 bool isValidAge(int age);
+
+int findFlightIndexByCode(char *str);
+
+bool isValidStringCode(char *str);
+bool isValidStringModel(char *str);
+bool isValidStringCompany(char *str);
+bool isValidStringDate(char *str);
+bool isValidStringTime(char *str);
+bool isValidStringGate(char *str);
+bool isValidStringStarting(char *str);
+bool isValidStringDestination(char *str);
+bool isValidPrise(int prise);
+bool isValidNum(int num);
 
 int visualWidth(const wchar_t *str);
 void wprintAlign(const wchar_t *str, int total_width);
@@ -116,7 +139,7 @@ typedef struct
     char CODE[MAX_CODE_LENGTH];
     char MODEL[MAX_NAME_LENGTH];
     char COMPANY[MAX_NAME_LENGTH];
-    char date[11];
+    char date[MAX_DATE_LENGTH];
     time_t time;
     time_t duration;
     char GATE[MAX_NAME_LENGTH];
@@ -132,7 +155,7 @@ int flightsCount = 0;
 int main()
 {
     setlocale(LC_ALL, "");
-    
+
     initialize();
     loadUsers();
     loadFlights();
@@ -467,7 +490,7 @@ void login()
     printf("-----登录-----\n");
     if (usersCount == 0)
     {
-        printf("系统还没有用户，请先注册\n");
+        printf("暂无用户\n");
         return;
     }
 
@@ -606,6 +629,7 @@ void login()
 void userMenu(int index)
 {
     int choice;
+    char c;
 
     do
     {
@@ -619,8 +643,12 @@ void userMenu(int index)
         printf("-----------------\n");
         printf("请选择功能: ");
 
-        scanf("%d", &choice);
-        getchar();
+        while (scanf("%d%c", &choice, &c) != 2 || c != '\n' || choice != 0 && choice != 1)
+        {
+            printf("无效输入 请输入一个有效的数字选项\n");
+            while ((c = getchar()) != '\n' && c != EOF)
+                ;
+        }
         switch (choice)
         {
         case 1:
@@ -630,7 +658,7 @@ void userMenu(int index)
             bookFlight(index);
             break;
         case 3:
-            cancleflight(index);
+            cancleFlight(index);
             break;
         case 0:
             printf("已注销\n");
@@ -647,6 +675,7 @@ void userMenu(int index)
 void adminMenu(int index)
 {
     int choice;
+    char c;
 
     if (admins[index].ROLE == 0)
     {
@@ -663,8 +692,12 @@ void adminMenu(int index)
             printf("-------------------\n");
             printf("请选择功能: ");
 
-            scanf("%d", &choice);
-            getchar();
+            while (scanf("%d%c", &choice, &c) != 2 || c != '\n' || choice != 0 && choice != 1)
+            {
+                printf("无效输入 请输入一个有效的数字选项\n");
+                while ((c = getchar()) != '\n' && c != EOF)
+                    ;
+            }
             switch (choice)
             {
             case 1:
@@ -707,8 +740,12 @@ void adminMenu(int index)
             printf("-------------------\n");
             printf("请选择功能: ");
 
-            scanf("%d", &choice);
-            getchar();
+            while (scanf("%d%c", &choice, &c) != 2 || c != '\n' || choice != 0 && choice != 1)
+            {
+                printf("无效输入 请输入一个有效的数字选项\n");
+                while ((c = getchar()) != '\n' && c != EOF)
+                    ;
+            }
             switch (choice)
             {
             case 1:
@@ -739,6 +776,7 @@ void adminMenu(int index)
 void enterMenu(int index)
 {
     int choice;
+    char c;
 
     do
     {
@@ -753,8 +791,12 @@ void enterMenu(int index)
         printf("-------------------\n");
         printf("请选择功能:");
 
-        scanf("%d", &choice);
-        getchar();
+        while (scanf("%d%c", &choice, &c) != 2 || c != '\n' || choice != 0 && choice != 1)
+        {
+            printf("无效输入 请输入一个有效的数字选项\n");
+            while ((c = getchar()) != '\n' && c != EOF)
+                ;
+        }
         switch (choice)
         {
         case 1:
@@ -936,9 +978,7 @@ void bookFlight(int index)
     printf("找到的航班号:\n");
     for (int i = 0; i < p; ++i)
     {
-        printf("----------航班列表----------\n");
-        wprintf(L"%-10ls%-10ls%-20ls%-8ls%-8ls%-8ls%-20ls%-20ls%-8ls%-8ls%-8ls\n", L"航班号", L"机型", L"承办公司", L"日期", L"出发时间", L"到达时间", L"始发地", L"目的地", L"价格", L"剩余", L"状态");
-        wprintf(L"%-10ls%-10ls%-20ls%-8ls%-8ls%-8ls%-20ls%-20ls%-8d%-8d%-8ls\n", flights[findFlightIndex[i]].CODE, flights[findFlightIndex[i]].MODEL, flights[findFlightIndex[i]].COMPANY, flights[findFlightIndex[i]].date, departureTime(i), arrivalTime(i), flights[findFlightIndex[i]].STARTING, flights[findFlightIndex[i]].DESTINATION, flights[findFlightIndex[i]].prise, countFlightRemain(i), calStatus(i));
+        printf("%d %s\n", i, flights[findFlightIndex[i]].date);
     }
 
     int inputBookFlight;
@@ -952,7 +992,7 @@ void bookFlight(int index)
         return;
     }
 
-    printf("请支付金额: %d元\n", flights[inputBookFlight - 1].prise);
+    printf("请支付金额: %d元\n", flights[findFlightIndex[inputBookFlight - 1]].prise);
     bool payRes = false;
     printf("是否成功支付(0失败 1成功): \n");
     scanf("%d", &payRes);
@@ -968,7 +1008,7 @@ void bookFlight(int index)
     printf("预定成功\n");
 }
 
-void cancleflight(int index)
+void cancleFlight(int index)
 {
     if (users[index].count == 0)
     {
@@ -997,32 +1037,896 @@ void cancleflight(int index)
     users[index].count--;
 }
 
+/* printf("1 增加用户\n");
+printf("2 删除用户\n");
+printf("3 修改用户\n");
+printf("4 查询用户\n");
+ */
+
 void addUser()
 {
+    system("cls");
+    printf("-----增加用户-----");
+    if (usersCount >= MAX_USER_NUMBER)
+    {
+        printf("用户数量已达上限\n");
+        pressEnterToContinue();
+        return;
+    }
+
+    USER u = {0};
+    printf("UUID(3-20位字母和数字):");
+    fgets(u.UUID, MAX_UUID_LENGTH, stdin);
+    if (strchr(u.UUID, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
+    u.UUID[strcspn(u.UUID, "\n")] = '\0';
+    if (!isValidStringUUID(u.UUID))
+    {
+        printf("UUID 不符合规范\n");
+        pressEnterToContinue();
+        return;
+    }
+
+    if ((findUserIndexByUUID(u.UUID) >= 0) || (findAdminIndexByUUID(u.UUID) >= 0) || (findEnterIndexByUUID(u.UUID) >= 0))
+    {
+        printf("该用户名已存在\n");
+        pressEnterToContinue();
+        return;
+    }
+
+    printf("NAME(3-20个字符): ");
+    fgets(u.NAME, MAX_UUID_LENGTH, stdin);
+    if (strchr(u.NAME, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
+    u.NAME[strcspn(u.NAME, "\n")] = '\0';
+    if (!isValidStringNAME(u.NAME))
+    {
+        printf("NAME 不符合规范\n");
+        pressEnterToContinue();
+        return;
+    }
+
+    printf("PASSWORD(3-20位字母和数字): ");
+    fgets(u.PASSWORD, MAX_UUID_LENGTH, stdin);
+    if (strchr(u.PASSWORD, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
+    u.PASSWORD[strcspn(u.PASSWORD, "\n")] = '\0';
+    if (!isValidStringPASSWORD(u.PASSWORD))
+    {
+        printf("PASSWORD 不符合规范\n");
+        pressEnterToContinue();
+        return;
+    }
+
+    printf("PHONE(11位数字): ");
+    fgets(u.PHONE, MAX_UUID_LENGTH, stdin);
+    if (strchr(u.PHONE, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
+    u.PHONE[strcspn(u.PHONE, "\n")] = '\0';
+    if (!isValidStringPHONE(u.PHONE))
+    {
+        printf("PASSWORD 不符合规范\n");
+        pressEnterToContinue();
+        return;
+    }
+
+    int choice;
+    char c;
+    printf("是否立即补充其他信息?\n");
+    printf("0否 1是\n");
+    printf("选择: ");
+    while (scanf("%d%c", &choice, &c) != 2 || c != '\n' || choice != 0 && choice != 1)
+    {
+        printf("无效输入 请输入一个有效的数字选项\n");
+        while ((c = getchar()) != '\n' && c != EOF)
+            ;
+    }
+
+    if (choice)
+    {
+        while (1)
+        {
+            printf("0 默认\n");
+            printf("1 男\n");
+            printf("2 女\n");
+            printf("gender:");
+
+            if (scanf("%d%c", &u.gender, &c) == 2 && c == '\n' && isValidGender(u.gender))
+            {
+                break;
+            }
+            printf("输入不符合规范\n");
+            while ((c = getchar()) != '\n' && c != EOF)
+                ;
+        }
+
+        while (1)
+        {
+            printf("age(0-150):");
+
+            if (scanf("%d%c", &u.age, &c) == 2 && c == '\n' && isValidAge(u.age))
+            {
+                break;
+            }
+            printf("输入不符合规范\n");
+            while ((c = getchar()) != '\n' && c != EOF)
+                ;
+        }
+    }
+
+    users[usersCount++] = u;
+    saveUsers();
 }
 
 void deleteUser()
 {
+    system("cls");
+    printf("-----删除用户-----");
+    if (usersCount == 0)
+    {
+        printf("暂无用户\n");
+        pressEnterToContinue();
+        return;
+    }
+
+    char inputUUID[MAX_UUID_LENGTH];
+    printf("UUID(3-20位字母和数字): ");
+    fgets(inputUUID, MAX_UUID_LENGTH, stdin);
+    if (strchr(inputUUID, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
+    inputUUID[strcspn(inputUUID, "\n")] = '\0';
+
+    int index = findUserIndexByUUID(inputUUID);
+    if (index == -1)
+    {
+        printf("该用户不存在\n");
+        pressEnterToContinue();
+        return;
+    }
+
+    for (int i = index; i < usersCount - 1; ++i)
+    {
+        users[i] = users[i + 1];
+    }
+    usersCount--;
+
+    saveUsers();
 }
 
 void modifyUser()
 {
+    system("cls");
+    printf("-----修改用户-----");
+    if (usersCount == 0)
+    {
+        printf("暂无用户\n");
+    }
+
+    char inputUUID[MAX_UUID_LENGTH];
+    printf("UUID(3-20位字母和数字): ");
+    fgets(inputUUID, MAX_UUID_LENGTH, stdin);
+    if (strchr(inputUUID, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
+    inputUUID[strcspn(inputUUID, "\n")] = '\0';
+
+    int index = findUserIndexByUUID(inputUUID);
+    if (index == -1)
+    {
+        printf("该用户不存在\n");
+        pressEnterToContinue();
+        return;
+    }
+
+    int choice = 1;
+    char c;
+    while (choice)
+    {
+        system("cls");
+        printf("请选择想要更改的内容\n");
+        printf("1 UUID\n");
+        printf("2 NAME\n");
+        printf("3 PASSWORD\n");
+        printf("4 PHONE\n");
+        printf("5 gender\n");
+        printf("6 age\n");
+        printf("0 退出\n");
+
+        while (scanf("%d%c", &choice) != 1 || choice < 0 || choice > 6)
+        {
+            printf("无效输入 请输入一个有效的数字选项\n");
+            while ((c = getchar()) != '\n' && c != EOF)
+                ;
+        }
+
+        switch (choice)
+        {
+        case 1:
+        {
+            char inputUUID[MAX_UUID_LENGTH];
+            printf("NEW UUID(3-20位字母和数字): ");
+            fgets(inputUUID, MAX_UUID_LENGTH, stdin);
+            if (strchr(inputUUID, '\n') == NULL)
+            {
+                clearInputBuffer();
+            }
+            inputUUID[strcspn(inputUUID, "\n")] = '\0';
+
+            if (!isValidStringUUID(inputUUID))
+            {
+                printf("UUID 不符合规范\n");
+                pressEnterToContinue();
+                break;
+            }
+            if ((findUserIndexByUUID(inputUUID) >= 0) || (findAdminIndexByUUID(inputUUID) >= 0) || (findEnterIndexByUUID(inputUUID) >= 0))
+            {
+                printf("UUID 已存在\n");
+                pressEnterToContinue();
+                break;
+            }
+
+            strcpy(users[index].UUID, inputUUID);
+            saveUsers();
+            break;
+        }
+
+        case 2:
+        {
+            char inputName[MAX_NAME_LENGTH];
+            printf("NEW NAME(3-20个字符): ");
+            fgets(inputName, MAX_NAME_LENGTH, stdin);
+            if (strchr(inputName, '\n') == NULL)
+            {
+                clearInputBuffer();
+            }
+            inputName[strcspn(inputName, "\n")] = '\0';
+
+            if (!isValidStringNAME(inputName))
+            {
+                printf("NAME 不符合规范\n");
+                pressEnterToContinue();
+                break;
+            }
+
+            strcpy(users[index].NAME, inputName);
+            saveUsers();
+            break;
+        }
+
+        case 3:
+        {
+            char inputPassword[MAX_PASSWORD_LENGTH];
+            printf("NEW PASSWORD(3-20位字母和数字): ");
+            fgets(inputPassword, MAX_PASSWORD_LENGTH, stdin);
+            if (strchr(inputPassword, '\n') == NULL)
+            {
+                clearInputBuffer();
+            }
+            inputPassword[strcspn(inputPassword, "\n")] = '\0';
+
+            if (!isValidStringPASSWORD(inputPassword))
+            {
+                printf("PASSWORD 不符合规范\n");
+                pressEnterToContinue();
+                break;
+            }
+
+            strcpy(users[index].PASSWORD, inputPassword);
+            saveUsers();
+            break;
+        }
+        case 4:
+        {
+            char inputPhone[MAX_PHONE_LENGTH];
+            printf("NEW PHONE(11数字): ");
+            fgets(inputPhone, MAX_PHONE_LENGTH, stdin);
+            if (strchr(inputPhone, '\n') == NULL)
+            {
+                clearInputBuffer();
+            }
+            inputPhone[strcspn(inputPhone, "\n")] = '\0';
+
+            if (!isValidStringPHONE(inputPhone))
+            {
+                printf("PHONE 不符合规范\n");
+                pressEnterToContinue();
+                break;
+            }
+
+            strcpy(users[index].PHONE, inputPhone);
+            saveUsers();
+            break;
+        }
+
+        case 5:
+        {
+            int inputGender;
+            char c;
+            printf("NEW gender:\n");
+            while (scanf("%d%c", &inputGender, &c) != 2 || c != '\n' || inputGender < 0 || inputGender > 2)
+            {
+                printf("无效输入 请输入一个有效的数字选项\n");
+                while ((c = getchar()) != '\n' && c != EOF)
+                    ;
+            }
+
+            if (!isValidGender(inputGender))
+            {
+                printf("gender 不符合规范\n");
+                pressEnterToContinue();
+                break;
+            }
+
+            users[index].gender = inputGender;
+            saveUsers();
+            break;
+        }
+
+        case 6:
+        {
+            int inputAge;
+            char c;
+            printf("NEW age(0-150): ");
+            while (scanf("%d%c", &inputAge, &c) != 2 || c != '\n' || inputAge < 0 || inputAge > 150)
+            {
+                printf("无效输入 请输入一个有效的数字选项\n");
+                while ((c = getchar()) != '\n' && c != EOF)
+                    ;
+            }
+
+            if (!isValidAge(inputAge))
+            {
+                printf("age 不符合规范\n");
+                pressEnterToContinue();
+                break;
+            }
+
+            users[index].age = inputAge;
+            saveUsers();
+            break;
+        }
+        default:
+        {
+            break;
+        }
+        }
+    }
 }
 
 void searchUser()
 {
+    system("cls");
+    printf("-----查询用户-----");
+    if (usersCount == 0)
+    {
+        printf("暂无用户\n");
+        pressEnterToContinue();
+        return;
+    }
+
+    char inputUUID[MAX_UUID_LENGTH];
+    printf("UUID(3-20位字母和数字): ");
+    fgets(inputUUID, MAX_UUID_LENGTH, stdin);
+    if (strchr(inputUUID, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
+    inputUUID[strcspn(inputUUID, "\n")] = '\0';
+    int index = findUserIndexByUUID(inputUUID);
+    if (index == -1)
+    {
+        printf("该用户不存在\n");
+        pressEnterToContinue();
+        return;
+    }
+
+    printf("UUID: %s\n", users[index].UUID);
+    printf("NAME: %s\n", users[index].NAME);
+    printf("PASSWORD: %s\n", users[index].PASSWORD);
+    printf("PHONE: %s\n", users[index].PHONE);
+    printf("gender: %d\n", users[index].gender);
+    printf("age: %d\n", users[index].age);
+
+    pressEnterToContinue();
 }
 
 void addFlight()
 {
+    system("cls");
+    printf("-----增加航班-----");
+    if (flightsCount >= MAX_FLIGHT_NUMBER)
+    {
+        printf("航班数量已达上限\n");
+    }
+
+    FLIGHT f = {0};
+    char c;
+    printf("CODE(3-20位字母和数字): ");
+    fgets(f.CODE, MAX_CODE_LENGTH, stdin);
+    if (strchr(f.CODE, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
+
+    if (!isValidStringCode(f.CODE))
+    {
+        printf("CODE 不符合规范\n");
+        pressEnterToContinue();
+        return;
+    }
+    if (findFlightIndexByCode(f.CODE) >= 0)
+    {
+        printf("该航班编号已存在\n");
+        pressEnterToContinue();
+        return;
+    }
+    f.CODE[strcspn(f.CODE, "\n")] = '\0';
+
+    printf("MODEL(2-30位字母与数字): ");
+    fgets(f.MODEL, MAX_NAME_LENGTH, stdin);
+    if (strchr(f.MODEL, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
+    if (!isValidStringModel(f.MODEL))
+    {
+        printf("MODEL 不符合规范\n");
+        pressEnterToContinue();
+        return;
+    }
+    f.MODEL[strcspn(f.MODEL, "\n")] = '\0';
+
+    printf("COMPANY(2-10个汉字): ");
+    fgets(f.COMPANY, MAX_NAME_LENGTH, stdin);
+    if (strchr(f.COMPANY, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
+    if (!isValidStringCompany(f.COMPANY))
+    {
+        printf("COMPANY 不符合规范\n");
+        pressEnterToContinue();
+        return;
+    }
+    f.COMPANY[strcspn(f.COMPANY, "\n")] = '\0';
+
+    printf("DATE(YYYY-MM-DD): ");
+    fgets(f.date, MAX_DATE_LENGTH, stdin);
+    if (strchr(f.date, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
+    if (!isValidStringDate(f.date))
+    {
+        printf("DATE 不符合规范\n");
+        pressEnterToContinue();
+        return;
+    }
+    f.date[strcspn(f.date, "\n")] = '\0';
+
+    char inputTime[MAX_TIME_LENGTH];
+    int hour, minute;
+    printf("TIME(HH:MM): ");
+    fgets(inputTime, MAX_TIME_LENGTH, stdin);
+    if (strchr(inputTime, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
+    if (!isValidStringTime(inputTime))
+    {
+        printf("TIME 不符合规范\n");
+        pressEnterToContinue();
+        return;
+    }
+    sscanf(inputTime, "%d:%d", &hour, &minute);
+    f.time = dateTotime(f.date, hour, minute);
+
+    printf("DURATION(MM)(总计分钟): ");
+    while (scanf("%d%c", &minute, &c) != 2 || c != '\n' || minute < 0 || minute > 1440)
+    {
+        printf("无效输入 请输入一个有效的数字选项\n");
+        while ((c = getchar()) != '\n' && c != EOF)
+            ;
+    }
+    f.duration = minute * 60;
+
+    printf("GATE(2-30个字母): ");
+    fgets(f.GATE, MAX_NAME_LENGTH, stdin);
+    if (strchr(f.GATE, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
+    if (!isValidStringGate(f.GATE))
+    {
+        printf("GATE 不符合规范\n");
+        pressEnterToContinue();
+        return;
+    }
+    f.GATE[strcspn(f.GATE, "\n")] = '\0';
+
+    printf("STARTING(2-10个汉字): ");
+    fgets(f.STARTING, MAX_NAME_LENGTH, stdin);
+    if (strchr(f.STARTING, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
+    if (!isValidStringStarting(f.STARTING))
+    {
+        printf("STARTING 不符合规范\n");
+        pressEnterToContinue();
+        return;
+    }
+    f.STARTING[strcspn(f.STARTING, "\n")] = '\0';
+
+    printf("DESTINATION(2-10个汉字): ");
+    fgets(f.DESTINATION, MAX_NAME_LENGTH, stdin);
+    if (strchr(f.DESTINATION, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
+    if (!isValidStringDestination(f.DESTINATION))
+    {
+        printf("DESTINATION 不符合规范\n");
+        pressEnterToContinue();
+        return;
+    }
+    f.DESTINATION[strcspn(f.DESTINATION, "\n")] = '\0';
+
+    printf("PRIZE(1-10000): ");
+    while (scanf("%d%c", &f.prise, &c) != 2 || c != '\n' || f.prise < 0 || f.prise > 10000)
+    {
+        printf("无效输入 请输入一个有效的数字选项\n");
+        while ((c = getchar()) != '\n' && c != EOF)
+            ;
+    }
+
+    printf("最大乘客数量(10-500)");
+    while (scanf("%d%c", &f.num, &c) != 2 || c != '\n' || f.num < 10 || f.num > 500)
+    {
+        printf("无效输入 请输入一个有效的数字选项\n");
+        while ((c = getchar()) != '\n' && c != EOF)
+            ;
+    }
+
+    flights[flightsCount++] = f;
+    saveFlights();
 }
 
 void deleteflight()
 {
+    system("cls");
+    printf("-----删除航班-----");
+    if (flightsCount == 0)
+    {
+        printf("暂无航班\n");
+        pressEnterToContinue();
+        return;
+    }
+
+    char inputCode[MAX_CODE_LENGTH];
+    printf("航班编号(3-20位字母和数字): ");
+    fgets(inputCode, MAX_CODE_LENGTH, stdin);
+    if (strchr(inputCode, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
+    inputCode[strcspn(inputCode, "\n")] = '\0';
+
+    int index = findFlightIndexByCode(inputCode);
+    if (index == -1)
+    {
+        printf("该航班不存在\n");
+    }
+
+    for (int i = index; i < flightsCount - 1; ++i)
+    {
+        flights[i] = flights[i + 1];
+    }
+    flightsCount--;
 }
 
 void modifyFlight()
 {
+    system("cls");
+    printf("-----修改航班-----");
+    if (flightsCount == 0)
+    {
+        printf("暂无航班\n");
+        pressEnterToContinue();
+        return;
+    }
+
+    char inputCode[MAX_CODE_LENGTH];
+    printf("CODE(3-20位字母和数字): ");
+    fgets(inputCode, MAX_CODE_LENGTH, stdin);
+    if (strchr(inputCode, '\n') == NULL)
+    {
+        clearInputBuffer();
+    }
+    inputCode[strcspn(inputCode, "\n")] = '\0';
+
+    int index = findFlightIndexByCode(inputCode);
+    if (index == -1)
+    {
+        printf("该航班不存在\n");
+        pressEnterToContinue();
+        return;
+    }
+
+    int choice = 1;
+    char c;
+    while (choice)
+    {
+        system("cls");
+        printf("请选择想要更改的内容\n");
+        printf("1 CODE\n");
+        printf("2 MODEL\n");
+        printf("3 COMPANY\n");
+        printf("4 DATE\n");
+        printf("5 time\n");
+        printf("6 duration\n");
+        printf("7 GATE\n");
+        printf("8 STARTING\n");
+        printf("9 DESTINATION\n");
+        printf("10 prise\n");
+        printf("11 num\n");
+        printf("0 退出");
+
+        while (scanf("%d%c", &choice) != 1 || choice < 0 || choice > 11)
+        {
+            printf("无效输入 请输入一个有效的数字选项\n");
+        }
+        switch (choice)
+        {
+        case 1:
+        {
+            char inputCode[MAX_CODE_LENGTH];
+            printf("NEW CODE(3-20位字母和数字): ");
+            fgets(inputCode, MAX_CODE_LENGTH, stdin);
+            if (strchr(inputCode, '\n') == NULL)
+            {
+                clearInputBuffer();
+            }
+            inputCode[strcspn(inputCode, "\n")] = '\0';
+
+            if (!isValidStringCode(inputCode))
+            {
+                printf("CODE 不符合规范\n");
+                pressEnterToContinue();
+                break;
+            }
+            if (findFlightIndexByCode(inputCode) >= 0)
+            {
+                printf("该航班编号已存在\n");
+                pressEnterToContinue();
+                break;
+            }
+
+            strcpy(flights[index].CODE, inputCode);
+            saveFlights();
+            break;
+        }
+
+        case 2:
+        {
+            char inputModel[MAX_NAME_LENGTH];
+            printf("NEW MODEL(2-30位字母与数字): ");
+            fgets(inputModel, MAX_NAME_LENGTH, stdin);
+            if (strchr(inputModel, '\n') == NULL)
+            {
+                clearInputBuffer();
+            }
+            inputModel[strcspn(inputModel, "\n")] = '\0';
+
+            if (!isValidStringModel(inputModel))
+            {
+                printf("MODEL 不符合规范\n");
+                pressEnterToContinue();
+                break;
+            }
+
+            strcpy(flights[index].MODEL, inputModel);
+            saveFlights();
+            break;
+        }
+
+        case 3:
+        {
+            char inputCompany[MAX_NAME_LENGTH];
+            printf("NEW COMPANY(2-10个汉字): ");
+            fgets(inputCompany, MAX_NAME_LENGTH, stdin);
+            if (strchr(inputCompany, '\n') == NULL)
+            {
+                clearInputBuffer();
+            }
+            inputCompany[strcspn(inputCompany, "\n")] = '\0';
+
+            if (!isValidStringCompany(inputCompany))
+            {
+                printf("COMPANY 不符合规范\n");
+                pressEnterToContinue();
+                break;
+            }
+
+            strcpy(flights[index].COMPANY, inputCompany);
+            saveFlights();
+            break;
+        }
+
+        case 4:
+        {
+            char inputDate[MAX_DATE_LENGTH];
+            printf("NEW DATE(YYYY-MM-DD): ");
+            fgets(inputDate, MAX_DATE_LENGTH, stdin);
+            if (strchr(inputDate, '\n') == NULL)
+            {
+                clearInputBuffer();
+            }
+            inputDate[strcspn(inputDate, "\n")] = '\0';
+
+            if (!isValidStringDate(inputDate))
+            {
+                printf("DATE 不符合规范\n");
+                pressEnterToContinue();
+                break;
+            }
+
+            strcpy(flights[index].date, inputDate);
+            saveFlights();
+            break;
+        }
+
+        case 5:
+        {
+            char inputTime[MAX_TIME_LENGTH];
+            int hour, minute;
+            printf("NEW TIME(HH:MM): ");
+            fgets(inputTime, MAX_TIME_LENGTH, stdin);
+            if (strchr(inputTime, '\n') == NULL)
+            {
+                clearInputBuffer();
+            }
+            inputTime[strcspn(inputTime, "\n")] = '\0';
+
+            if (!isValidStringTime(inputTime))
+            {
+                printf("TIME 不符合规范\n");
+            }
+
+            sscanf(inputTime, "%d:%d", &hour, &minute);
+            flights[index].time = dateTotime(flights[index].date, hour, minute);
+            saveFlights();
+            break;
+        }
+
+        case 6:
+        {
+            int minute;
+            printf("NEW duration(MM)(总计分钟): ");
+            while (scanf("%d%c", &minute, &c) != 2 || c != '\n' || minute < 0 || minute > 1440)
+            {
+                printf("无效输入 请输入一个有效的数字选项\n");
+                while ((c = getchar()) != '\n' && c != EOF)
+                    ;
+            }
+
+            flights[index].duration = minute * 60;
+            saveFlights();
+            break;
+        }
+
+        case 7:
+        {
+            char inputGate[MAX_NAME_LENGTH];
+            printf("NEW GATE(2-30个字母): ");
+            fgets(inputGate, MAX_NAME_LENGTH, stdin);
+            if (strchr(inputGate, '\n') == NULL)
+            {
+                clearInputBuffer();
+            }
+            inputGate[strcspn(inputGate, "\n")] = '\0';
+
+            if (!isValidStringGate(inputGate))
+            {
+                printf("GATE 不符合规范\n");
+                pressEnterToContinue();
+                break;
+            }
+
+            strcpy(flights[index].GATE, inputGate);
+            saveFlights();
+            break;
+        }
+        case 8:
+        {
+            char inputStarting[MAX_NAME_LENGTH];
+            printf("NEW STARTING(2-10个汉字): ");
+            fgets(inputStarting, MAX_NAME_LENGTH, stdin);
+            if (strchr(inputStarting, '\n') == NULL)
+            {
+                clearInputBuffer();
+            }
+            inputStarting[strcspn(inputStarting, "\n")] = '\0';
+
+            if (!isValidStringStarting(inputStarting))
+            {
+                printf("STARTING 不符合规范\n");
+                pressEnterToContinue();
+                break;
+            }
+
+            strcpy(flights[index].STARTING, inputStarting);
+            saveFlights();
+            break;
+        }
+
+        case 9:
+        {
+            char inputDestination[MAX_NAME_LENGTH];
+            printf("NEW DESTINATION(2-10个汉字): ");
+            fgets(inputDestination, MAX_NAME_LENGTH, stdin);
+            if (strchr(inputDestination, '\n') == NULL)
+            {
+                clearInputBuffer();
+            }
+            inputDestination[strcspn(inputDestination, "\n")] = '\0';
+
+            if (!isValidStringDestination(inputDestination))
+            {
+                printf("DESTINATION 不符合规范\n");
+                pressEnterToContinue();
+                break;
+            }
+
+            strcpy(flights[index].DESTINATION, inputDestination);
+            saveFlights();
+            break;
+        }
+
+        case 10:
+        {
+            int prise;
+            printf("NEW prise(1-10000): ");
+            while (scanf("%d%c", &prise, &c) != 2 || c != '\n' || prise < 0 || prise > 10000)
+            {
+                printf("无效输入 请输入一个有效的数字选项\n");
+                while ((c = getchar()) != '\n' && c != EOF)
+                    ;
+            }
+
+            flights[index].prise = prise;
+            saveFlights();
+            break;
+        }
+
+        case 11:
+        {
+            int num;
+            printf("NEW num(10-500): ");
+            while (scanf("%d%c", &num, &c) != 2 || c != '\n' || num < 10 || num > 500)
+            {
+                printf("无效输入 请输入一个有效的数字选项\n");
+                while ((c = getchar()) != '\n' && c != EOF)
+                    ;
+            }
+
+            flights[index].num = num;
+            saveFlights();
+            break;
+        }
+        }
+    }
 }
 
 int findUserIndexByUUID(char *inputUUID)
@@ -1189,6 +2093,87 @@ bool isValidAge(int age)
     {
         return true;
     }
+}
+
+int findFlightIndexByCode(char *str)
+{
+    for (int i = 0; i < flightsCount; ++i)
+    {
+        if (strcmp(flights[i].CODE, str) == 0)
+        {
+            return i;
+        }
+    }
+}
+
+bool isValidStringCode(char *str)
+{
+    int len = strlen(str);
+
+    if (len < 3)
+    {
+        printf("CODE 过短 至少为3位\n");
+        pressEnterToContinue();
+        return false;
+    }
+    if (len > 20)
+    {
+        printf("CODE 过长 最多为20位\n");
+        pressEnterToContinue();
+        return false;
+    }
+
+    for (int i = 0; i < len; ++i)
+    {
+        if (!(((str[i] >= 'a') && (str[i] <= 'z')) || ((str[i] >= 'A') && (str[i] <= 'Z')) || ((str[i] >= '0') && (str[i] <= '9'))))
+        {
+            printf("CODE 只能包含字母和数字\n");
+            pressEnterToContinue();
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool isValidStringModel(char *str)
+{
+}
+
+bool isValidStringCompany(char *str)
+{
+}
+
+bool isValidStringDate(char *str)
+{
+}
+
+bool isValidStringTime(char *str)
+{
+}
+
+bool isValidStringDuration(char *str)
+{
+}
+
+bool isValidStringGate(char *str)
+{
+}
+
+bool isValidStringStarting(char *str)
+{
+}
+
+bool isValidStringDestination(char *str)
+{
+}
+
+bool isValidPrise(int prise)
+{
+}
+
+bool isValidNum(int num)
+{
 }
 
 int visualWidth(const wchar_t *str)
