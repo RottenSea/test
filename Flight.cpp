@@ -11,6 +11,8 @@
  * scanf需要检查缓冲区
  *
  * 用户航班的保存需要日期
+ *
+ * listflights函数输出错误 考虑改为普通printf
  */
 
 #include <stdio.h>
@@ -87,8 +89,6 @@ bool isValidStringTime(char *str);
 bool isValidStringGate(char *str);
 bool isValidStringStarting(char *str);
 bool isValidStringDestination(char *str);
-bool isValidPrise(int prise);
-bool isValidNum(int num);
 
 int visualWidth(const wchar_t *str);
 void wprintAlign(const wchar_t *str, int total_width);
@@ -172,7 +172,7 @@ int main()
         printf("--------------------------\n");
         printf("请选择：");
 
-        if (scanf("%d%c", &choice, &c) != 2 || c != '\n' || choice != 0 && choice != 1)
+        if (scanf("%d%c", &choice, &c) != 2 || c != '\n' || choice < 0 || choice > 2)
         {
             printf("无效输入 请输入一个有效的数字选项\n");
             while ((c = getchar()) != '\n' && c != EOF)
@@ -897,6 +897,8 @@ void listFlight(const char *name)
                 wprintf(L"\n");
             }
     }
+
+    pressEnterToContinue();
 }
 
 wchar_t *departureTime(int index)
@@ -2104,8 +2106,13 @@ int findFlightIndexByCode(char *str)
             return i;
         }
     }
+
+    return -1;
 }
 
+/**
+ * printf("NEW CODE(3-20位字母和数字): ");
+ */
 bool isValidStringCode(char *str)
 {
     int len = strlen(str);
@@ -2136,44 +2143,230 @@ bool isValidStringCode(char *str)
     return true;
 }
 
+/**
+ * printf("NEW MODEL(2-30位字母与数字): ");
+ */
 bool isValidStringModel(char *str)
 {
+    int len = strlen(str);
+
+    if (len < 2)
+    {
+        printf("MODEL 过短 至少为2位\n");
+        pressEnterToContinue();
+        return false;
+    }
+    if (len > 30)
+    {
+        printf("MODEL 过长 最多为30位\n");
+        pressEnterToContinue();
+        return false;
+    }
+
+    for (int i = 0; i < len; ++i)
+    {
+        if (!(((str[i] >= 'a') && (str[i] <= 'z')) || ((str[i] >= 'A') && (str[i] <= 'Z')) || ((str[i] >= '0') && (str[i] <= '9'))))
+        {
+            printf("MODEL 只能包含字母和数字\n");
+            pressEnterToContinue();
+            return false;
+        }
+    }
+
+    return true;
 }
 
+/**
+ * printf("NEW COMPANY(2-10个汉字): ");
+ */
 bool isValidStringCompany(char *str)
 {
+    int len = strlen(str);
+
+    if (len < 2)
+    {
+        printf("COMPANY 过短 至少为2位\n");
+        pressEnterToContinue();
+        return false;
+    }
+    if (len > 10)
+    {
+        printf("COMPANY 过长 最多为10位\n");
+        pressEnterToContinue();
+        return false;
+    }
+
+    for (int i = 0; i < len; ++i)
+    {
+        if (!((str[i] >= 0x4e00) && (str[i] <= 0x9fff)))
+        {
+            printf("COMPANY 只能包含汉字\n");
+            pressEnterToContinue();
+            return false;
+        }
+    }
+
+    return true;
 }
 
+/**
+ * printf("NEW DATE(YYYY-MM-DD): ");
+ */
 bool isValidStringDate(char *str)
 {
+    int year, month, day;
+
+    if (sscanf(str, "%d-%d-%d", &year, &month, &day) != 3)
+    {
+        printf("日期格式错误: %s\n", str);
+        pressEnterToContinue();
+        return false;
+    }
+    if (year < 1900 || year > 2100)
+    {
+        printf("日期格式错误: %s\n", str);
+        pressEnterToContinue();
+        return false;
+    }
+    if (month < 1 || month > 12)
+    {
+        printf("日期格式错误: %s\n", str);
+        pressEnterToContinue();
+        return false;
+    }
+    if (day < 1 || day > 31)
+    {
+        printf("日期格式错误: %s\n", str);
+        pressEnterToContinue();
+        return false;
+    }
+
+    return true;
 }
 
+/**
+ * printf("NEW TIME(HH:MM): ");
+ */
 bool isValidStringTime(char *str)
 {
+    int hour, minute;
+
+    if (sscanf(str, "%d:%d", &hour, &minute) != 2)
+    {
+        printf("时间格式错误: %s\n", str);
+        pressEnterToContinue();
+        return false;
+    }
+    if (hour < 0 || hour > 23)
+    {
+        printf("时间格式错误: %s\n", str);
+        pressEnterToContinue();
+        return false;
+    }
+    if (minute < 0 || minute > 59)
+    {
+        printf("时间格式错误: %s\n", str);
+        pressEnterToContinue();
+        return false;
+    }
+
+    return true;
 }
 
-bool isValidStringDuration(char *str)
-{
-}
-
+/**
+ * printf("NEW GATE(2-30个字母): ");
+ */
 bool isValidStringGate(char *str)
 {
+    int len = strlen(str);
+
+    if (len < 2)
+    {
+        printf("GATE 过短 至少为2位\n");
+        pressEnterToContinue();
+        return false;
+    }
+    if (len > 30)
+    {
+        printf("GATE 过长 最多为30位\n");
+        pressEnterToContinue();
+        return false;
+    }
+    for (int i = 0; i < len; ++i)
+    {
+        if (!(((str[i] >= 'a') && (str[i] <= 'z')) || ((str[i] >= 'A') && (str[i] <= 'Z'))))
+        {
+            printf("GATE 只能包含字母\n");
+            pressEnterToContinue();
+            return false;
+        }
+    }
+
+    return true;
 }
 
+/**
+ * printf("NEW STARTING(2-10个汉字): ");
+ */
 bool isValidStringStarting(char *str)
 {
+    int len = strlen(str);
+
+    if (len < 2)
+    {
+        printf("STARTING 过短 至少为2位\n");
+        pressEnterToContinue();
+        return false;
+    }
+    if (len > 10)
+    {
+        printf("STARTING 过长 最多为10位\n");
+        pressEnterToContinue();
+        return false;
+    }
+
+    for (int i = 0; i < len; ++i)
+    {
+        if (!((str[i] >= 0x4e00) && (str[i] <= 0x9fff)))
+        {
+            printf("STARTING 只能包含汉字\n");
+            pressEnterToContinue();
+            return false;
+        }
+    }
+    return true;
 }
 
+/**
+ * printf("NEW DESTINATION(2-10个汉字): ");
+ */
 bool isValidStringDestination(char *str)
 {
-}
+    int len = strlen(str);
 
-bool isValidPrise(int prise)
-{
-}
+    if (len < 2)
+    {
+        printf("DESTINATION 过短 至少为2位\n");
+        pressEnterToContinue();
+        return false;
+    }
+    if (len > 10)
+    {
+        printf("DESTINATION 过长 最多为10位\n");
+        pressEnterToContinue();
+        return false;
+    }
 
-bool isValidNum(int num)
-{
+    for (int i = 0; i < len; ++i)
+    {
+        if (!((str[i] >= 0x4e00) && (str[i] <= 0x9fff)))
+        {
+            printf("DESTINATION 只能包含汉字\n");
+            pressEnterToContinue();
+            return false;
+        }
+    }
+    return true;
 }
 
 int visualWidth(const wchar_t *str)
