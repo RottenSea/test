@@ -13,6 +13,10 @@
  * 用户航班的保存需要日期
  *
  * listflights函数输出错误 考虑改为普通printf
+ *
+ * 只有一个用户管理员/一个航班管理员/一个航司管理员
+ *
+ * 航司就不改了 原本是航司只能管理自家的航班 现在只实现了能够查询自家的航班 其他功能和航班管理员差不多
  */
 
 #include <stdio.h>
@@ -168,7 +172,7 @@ int flightsCount = 0;
 
 int main()
 {
-    setlocale(LC_ALL, "");
+    setlocale(LC_ALL, ""); // 启用本地环境支持中文
 
     initialize();
     loadUsers();
@@ -426,6 +430,7 @@ void reg()
             (findEnterIndexByUUID(u.UUID) >= 0))
         {
             printf("该用户名已存在\n\n");
+            pressEnterToContinue();
             return;
         }
 
@@ -519,7 +524,6 @@ void reg()
             {
                 break;
             }
-            clearInputBuffer();
             printf("输入不符合规范 请重新输入\n");
         }
 
@@ -538,6 +542,8 @@ void reg()
     }
 
     users[usersCount++] = u;
+    printf("注册成功\n");
+    pressEnterToContinue();
     saveUsers();
 }
 
@@ -698,10 +704,10 @@ void userMenu(int index)
         printf("-----------------\n");
         printf("请选择功能: ");
 
-        while (scanf("%d%c", &choice, &c) != 2 || c != '\n' || (choice < 0 && choice > 4))
+        if (scanf("%d%c", &choice, &c) != 2 || c != '\n' || choice < 0 || choice > 4)
         {
             printf("无效输入 请输入一个有效的数字选项\n");
-            clearInputBuffer();
+            pressEnterToContinue();
         }
 
         switch (choice)
@@ -746,10 +752,10 @@ void adminMenu(int index)
             printf("-------------------\n");
             printf("请选择功能: ");
 
-            while (scanf("%d%c", &choice, &c) != 2 || c != '\n' || (choice < 0 && choice > 4))
+            if (scanf("%d%c", &choice, &c) != 2 || c != '\n' || choice < 0 || choice > 4)
             {
                 printf("无效输入 请输入一个有效的数字选项\n");
-                clearInputBuffer();
+                pressEnterToContinue();
             }
 
             switch (choice)
@@ -790,10 +796,10 @@ void adminMenu(int index)
             printf("-------------------\n");
             printf("请选择功能: ");
 
-            while (scanf("%d%c", &choice, &c) != 2 || c != '\n' || (choice < 0 && choice > 4))
+            if (scanf("%d%c", &choice, &c) != 2 || c != '\n' || choice < 0 || choice > 4)
             {
                 printf("无效输入 请输入一个有效的数字选项\n");
-                clearInputBuffer();
+                pressEnterToContinue();
             }
 
             switch (choice)
@@ -835,12 +841,12 @@ void enterMenu(int index)
         printf("4 修改航班\n");
         printf("0 注销并返回上级菜单\n");
         printf("-------------------\n");
-        printf("请选择功能:");
+        printf("请选择功能: ");
 
-        while (scanf("%d%c", &choice, &c) != 2 || c != '\n' || (choice < 0 && choice > 4))
+        if (scanf("%d%c", &choice, &c) != 2 || c != '\n' || choice < 0 || choice > 4)
         {
             printf("无效输入 请输入一个有效的数字选项\n");
-            clearInputBuffer();
+            pressEnterToContinue();
         }
 
         switch (choice)
@@ -982,6 +988,19 @@ void bookFlight(int index)
         printf("超过可订购航班数量上限\n");
         pressEnterToContinue();
         return;
+    }
+
+    // 展示当前航班
+    printf("当前航班数量: %d\n", flightsCount);
+    printf("----------航班列表----------\n");
+    printAlign("航班号", MAX_CODE_LENGTH);
+    printf("日期", MAX_DATE_LENGTH);
+    printf("\n");
+    for (int i = 0; i < flightsCount; ++i)
+    {
+        printAlign(flights[i].CODE, MAX_CODE_LENGTH);
+        printf(flights[i].date, MAX_DATE_LENGTH);
+        printf("\n");
     }
 
     char inputCode[MAX_CODE_LENGTH];
@@ -1230,7 +1249,7 @@ void cancleFlight(int index)
 void addUser()
 {
     system("cls");
-    printf("-----增加用户-----");
+    printf("-----增加用户-----\n");
     if (usersCount >= MAX_USER_NUMBER)
     {
         printf("用户数量已达上限\n");
@@ -1344,13 +1363,15 @@ void addUser()
     }
 
     users[usersCount++] = u;
+    printf("用户添加成功\n");
+    pressEnterToContinue();
     saveUsers();
 }
 
 void deleteUser()
 {
     system("cls");
-    printf("-----删除用户-----");
+    printf("-----删除用户-----\n");
     if (usersCount == 0)
     {
         printf("暂无用户\n");
@@ -1366,6 +1387,12 @@ void deleteUser()
         clearInputBuffer();
     }
     inputUUID[strcspn(inputUUID, "\n")] = '\0';
+    if (!isValidStringUUID(inputUUID))
+    {
+        printf("UUID 不符合规范\n");
+        pressEnterToContinue();
+        return;
+    }
 
     int index = findUserIndexByUUID(inputUUID);
     if (index == -1)
@@ -1382,25 +1409,34 @@ void deleteUser()
     usersCount--;
 
     saveUsers();
+    printf("用户删除成功\n");
+    pressEnterToContinue();
 }
 
 void modifyUser()
 {
     system("cls");
-    printf("-----修改用户-----");
+    printf("-----修改用户-----\n");
     if (usersCount == 0)
     {
         printf("暂无用户\n");
+        pressEnterToContinue();
+        return;
     }
 
     char inputUUID[MAX_UUID_LENGTH];
     printf("UUID(3-20位字母和数字): ");
-    fgets(inputUUID, MAX_UUID_LENGTH, stdin);
+    fgets(inputUUID, sizeof(inputUUID), stdin);
     if (strchr(inputUUID, '\n') == NULL)
-    {
         clearInputBuffer();
-    }
     inputUUID[strcspn(inputUUID, "\n")] = '\0';
+
+    if (!isValidStringUUID(inputUUID))
+    {
+        printf("UUID 不符合规范\n");
+        pressEnterToContinue();
+        return;
+    }
 
     int index = findUserIndexByUUID(inputUUID);
     if (index == -1)
@@ -1410,182 +1446,194 @@ void modifyUser()
         return;
     }
 
-    int choice = 1;
+    int choice;
     char c;
-    while (choice)
+
+    while (1)
     {
         system("cls");
-        printf("请选择想要更改的内容\n");
+        printf("-----修改用户信息[%s]-----\n", users[index].NAME);
         printf("1 UUID\n");
         printf("2 NAME\n");
         printf("3 PASSWORD\n");
         printf("4 PHONE\n");
-        printf("5 gender\n");
-        printf("6 age\n");
-        printf("0 退出\n");
+        printf("5 Gender\n");
+        printf("6 Age\n");
+        printf("0 退出修改\n");
+        printf("请输入选项: ");
 
-        while (scanf("%d%c", &choice) != 1 || choice < 0 || choice > 6)
+        if (scanf("%d%c", &choice, &c) != 2 || c != '\n' || choice < 0 || choice > 6)
         {
-            printf("无效输入 请输入一个有效的数字选项\n");
-            clearInputBuffer();
+            printf("无效输入 请输入 0-6 的数字\n");
+            pressEnterToContinue();
+            continue;
         }
 
         switch (choice)
         {
         case 1:
         {
-            char inputUUID[MAX_UUID_LENGTH];
-            printf("NEW UUID(3-20位字母和数字): ");
-            fgets(inputUUID, MAX_UUID_LENGTH, stdin);
-            if (strchr(inputUUID, '\n') == NULL)
+            char newUUID[MAX_UUID_LENGTH];
+            printf("新 UUID(3-20位字母和数字): ");
+            fgets(newUUID, sizeof(newUUID), stdin);
+            if (strchr(newUUID, '\n') == NULL)
             {
                 clearInputBuffer();
             }
-            inputUUID[strcspn(inputUUID, "\n")] = '\0';
+            newUUID[strcspn(newUUID, "\n")] = '\0';
 
-            if (!isValidStringUUID(inputUUID))
+            if (!isValidStringUUID(newUUID))
             {
                 printf("UUID 不符合规范\n");
-                pressEnterToContinue();
-                break;
-            }
-            if ((findUserIndexByUUID(inputUUID) >= 0) || (findAdminIndexByUUID(inputUUID) >= 0) || (findEnterIndexByUUID(inputUUID) >= 0))
-            {
-                printf("UUID 已存在\n");
-                pressEnterToContinue();
                 break;
             }
 
-            strcpy(users[index].UUID, inputUUID);
+            if (findUserIndexByUUID(newUUID) >= 0 || findAdminIndexByUUID(newUUID) >= 0 || findEnterIndexByUUID(newUUID) >= 0)
+            {
+                printf("UUID 已存在\n");
+                break;
+            }
+
+            strcpy(users[index].UUID, newUUID);
             saveUsers();
+            printf("UUID 修改成功\n");
             break;
         }
 
         case 2:
         {
-            char inputName[MAX_NAME_LENGTH];
-            printf("NEW NAME(3-20个字符): ");
-            fgets(inputName, MAX_NAME_LENGTH, stdin);
-            if (strchr(inputName, '\n') == NULL)
+            char newName[MAX_NAME_LENGTH];
+            printf("新名称(3-20字符): ");
+            fgets(newName, sizeof(newName), stdin);
+            if (strchr(newName, '\n') == NULL)
             {
                 clearInputBuffer();
             }
-            inputName[strcspn(inputName, "\n")] = '\0';
+            newName[strcspn(newName, "\n")] = '\0';
 
-            if (!isValidStringNAME(inputName))
+            if (!isValidStringNAME(newName))
             {
-                printf("NAME 不符合规范\n");
-                pressEnterToContinue();
+                printf("名称不符合规范\n");
                 break;
             }
 
-            strcpy(users[index].NAME, inputName);
+            strcpy(users[index].NAME, newName);
             saveUsers();
+            printf("名称修改成功\n");
             break;
         }
 
         case 3:
         {
-            char inputPassword[MAX_PASSWORD_LENGTH];
-            printf("NEW PASSWORD(3-20位字母和数字): ");
-            fgets(inputPassword, MAX_PASSWORD_LENGTH, stdin);
-            if (strchr(inputPassword, '\n') == NULL)
+            char newPassword[MAX_PASSWORD_LENGTH];
+            printf("新密码(3-20位字母和数字): ");
+            fgets(newPassword, sizeof(newPassword), stdin);
+            if (strchr(newPassword, '\n') == NULL)
             {
                 clearInputBuffer();
             }
-            inputPassword[strcspn(inputPassword, "\n")] = '\0';
+            newPassword[strcspn(newPassword, "\n")] = '\0';
 
-            if (!isValidStringPASSWORD(inputPassword))
+            if (!isValidStringPASSWORD(newPassword))
             {
-                printf("PASSWORD 不符合规范\n");
-                pressEnterToContinue();
+                printf("密码不符合规范\n");
                 break;
             }
 
-            strcpy(users[index].PASSWORD, inputPassword);
+            strcpy(users[index].PASSWORD, newPassword);
             saveUsers();
+            printf("密码修改成功\n");
             break;
         }
+
         case 4:
         {
-            char inputPhone[MAX_PHONE_LENGTH];
-            printf("NEW PHONE(11数字): ");
-            fgets(inputPhone, MAX_PHONE_LENGTH, stdin);
-            if (strchr(inputPhone, '\n') == NULL)
+            char newPhone[MAX_PHONE_LENGTH];
+            printf("新手机号(11位数字): ");
+            fgets(newPhone, sizeof(newPhone), stdin);
+            if (strchr(newPhone, '\n') == NULL)
             {
                 clearInputBuffer();
             }
-            inputPhone[strcspn(inputPhone, "\n")] = '\0';
+            newPhone[strcspn(newPhone, "\n")] = '\0';
 
-            if (!isValidStringPHONE(inputPhone))
+            if (!isValidStringPHONE(newPhone))
             {
-                printf("PHONE 不符合规范\n");
-                pressEnterToContinue();
+                printf("手机号不符合规范\n");
                 break;
             }
 
-            strcpy(users[index].PHONE, inputPhone);
+            strcpy(users[index].PHONE, newPhone);
             saveUsers();
+            printf("手机号修改成功\n");
             break;
         }
 
         case 5:
         {
-            int inputGender;
-            char c;
-            printf("NEW gender:\n");
-            while (scanf("%d%c", &inputGender, &c) != 2 || c != '\n' || inputGender < 0 || inputGender > 2)
+            int gender;
+            printf("新性别(0未知 1男 2女): ");
+            while (scanf("%d%c", &gender, &c) != 2 || c != '\n' || gender < 0 || gender > 2)
             {
-                printf("无效输入 请输入一个有效的数字选项\n");
+                printf("请输入有效的数字(0-2): ");
                 clearInputBuffer();
             }
 
-            if (!isValidGender(inputGender))
+            if (!isValidGender(gender))
             {
-                printf("gender 不符合规范\n");
-                pressEnterToContinue();
+                printf("性别不符合规范。\n");
                 break;
             }
 
-            users[index].gender = inputGender;
+            users[index].gender = gender;
             saveUsers();
+            printf("性别修改成功\n");
             break;
         }
 
         case 6:
         {
-            int inputAge;
-            char c;
-            printf("NEW age(0-150): ");
-            while (scanf("%d%c", &inputAge, &c) != 2 || c != '\n' || inputAge < 0 || inputAge > 150)
+            int age;
+            printf("新年龄(0-150): ");
+            while (scanf("%d%c", &age, &c) != 2 || c != '\n' || age < 0 || age > 150)
             {
-                printf("无效输入 请输入一个有效的数字选项\n");
+                printf("请输入有效的年龄(0-150): ");
                 clearInputBuffer();
             }
 
-            if (!isValidAge(inputAge))
+            if (!isValidAge(age))
             {
-                printf("age 不符合规范\n");
-                pressEnterToContinue();
+                printf("年龄不符合规范\n");
                 break;
             }
 
-            users[index].age = inputAge;
+            users[index].age = age;
             saveUsers();
+            printf("年龄修改成功\n");
             break;
         }
+
+        case 0:
+        {
+            printf("退出用户修改\n");
+            pressEnterToContinue();
+            return;
+        }
+
         default:
         {
             break;
         }
         }
+
+        pressEnterToContinue();
     }
 }
 
 void searchUser()
 {
     system("cls");
-    printf("-----查询用户-----");
+    printf("-----查询用户-----\n");
     if (usersCount == 0)
     {
         printf("暂无用户\n");
@@ -1601,6 +1649,7 @@ void searchUser()
         clearInputBuffer();
     }
     inputUUID[strcspn(inputUUID, "\n")] = '\0';
+
     int index = findUserIndexByUUID(inputUUID);
     if (index == -1)
     {
@@ -1719,7 +1768,7 @@ void addFlight()
     sscanf(inputTime, "%d:%d", &hour, &minute);
     f.time = dateTotime(f.date, hour, minute);
 
-    // 航程时长（分钟）
+    // 航程时长(分钟)
     printf("DURATION(MM)(总计分钟): ");
     while (scanf("%d%c", &minute, &c) != 2 || c != '\n' || minute < 0 || minute > 1440)
     {
@@ -1729,7 +1778,7 @@ void addFlight()
     f.duration = minute * 60;
 
     // 登机口
-    printf("GATE(2-30个字母): ");
+    printf("GATE(2-30位字母与数字): ");
     fgets(f.GATE, MAX_NAME_LENGTH, stdin);
     if (strchr(f.GATE, '\n') == NULL)
     {
@@ -1846,7 +1895,7 @@ void deleteflight()
         return;
     }
 
-    // 删除航班（覆盖并减少数量）
+    // 删除航班(覆盖并减少数量)
     for (int i = index; i < flightsCount - 1; ++i)
     {
         flights[i] = flights[i + 1];
@@ -1908,7 +1957,7 @@ void modifyFlight()
         printf("0  退出\n");
         printf("输入选项编号: ");
 
-        if (scanf("%d%c", &choice, &c) != 1 || c != '\n' || choice < 0 || choice > 11)
+        if (scanf("%d%c", &choice, &c) != 2 || c != '\n' || choice < 0 || choice > 11)
         {
             printf("无效输入 请输入 0~11 的数字\n");
             clearInputBuffer();
@@ -2323,7 +2372,7 @@ bool isValidAge(int age)
     {
         return false;
     }
-    else if (age <= 150)
+    else if (age > 150)
     {
         return false;
     }
@@ -2417,26 +2466,35 @@ bool isValidStringModel(char *str)
  */
 bool isValidStringCompany(char *str)
 {
-    int len = strlen(str);
+    wchar_t wstr[32];
+    size_t wchar_count = mbstowcs(wstr, str, sizeof(wstr) / sizeof(wstr[0]));
 
-    if (len < 2)
+    if (wchar_count == (size_t)-1)
     {
-        printf("COMPANY 过短 至少为2位\n");
-        pressEnterToContinue();
-        return false;
-    }
-    if (len > 10)
-    {
-        printf("COMPANY 过长 最多为10位\n");
+        printf("字符串包含无效字符，无法转换为宽字符。\n");
         pressEnterToContinue();
         return false;
     }
 
-    for (int i = 0; i < len; ++i)
+    if (wchar_count < 2)
     {
-        if (!((str[i] >= 0x4e00) && (str[i] <= 0x9fff)))
+        printf("COMPANY 过短，至少为 2 个汉字。\n");
+        pressEnterToContinue();
+        return false;
+    }
+
+    if (wchar_count > 10)
+    {
+        printf("COMPANY 过长，最多为 10 个汉字。\n");
+        pressEnterToContinue();
+        return false;
+    }
+
+    for (size_t i = 0; i < wchar_count; ++i)
+    {
+        if (!(wstr[i] >= 0x4E00 && wstr[i] <= 0x9FFF))
         {
-            printf("COMPANY 只能包含汉字\n");
+            printf("COMPANY 只能包含汉字。\n");
             pressEnterToContinue();
             return false;
         }
@@ -2510,7 +2568,7 @@ bool isValidStringTime(char *str)
 }
 
 /**
- * printf("NEW GATE(2-30个字母): ");
+ * printf("GATE(2-30位字母与数字): ");
  */
 bool isValidStringGate(char *str)
 {
@@ -2518,21 +2576,24 @@ bool isValidStringGate(char *str)
 
     if (len < 2)
     {
-        printf("GATE 过短 至少为2位\n");
+        printf("GATE 过短，至少为 2 位。\n");
         pressEnterToContinue();
         return false;
     }
     if (len > 30)
     {
-        printf("GATE 过长 最多为30位\n");
+        printf("GATE 过长，最多为 30 位。\n");
         pressEnterToContinue();
         return false;
     }
+
     for (int i = 0; i < len; ++i)
     {
-        if (!(((str[i] >= 'a') && (str[i] <= 'z')) || ((str[i] >= 'A') && (str[i] <= 'Z'))))
+        if (!((str[i] >= 'a' && str[i] <= 'z') ||
+              (str[i] >= 'A' && str[i] <= 'Z') ||
+              (str[i] >= '0' && str[i] <= '9')))
         {
-            printf("GATE 只能包含字母\n");
+            printf("GATE 只能包含字母与数字。\n");
             pressEnterToContinue();
             return false;
         }
@@ -2546,30 +2607,40 @@ bool isValidStringGate(char *str)
  */
 bool isValidStringStarting(char *str)
 {
-    int len = strlen(str);
+    wchar_t wstr[32];
+    size_t wchar_count = mbstowcs(wstr, str, sizeof(wstr) / sizeof(wstr[0]));
 
-    if (len < 2)
+    if (wchar_count == (size_t)-1)
     {
-        printf("STARTING 过短 至少为2位\n");
-        pressEnterToContinue();
-        return false;
-    }
-    if (len > 10)
-    {
-        printf("STARTING 过长 最多为10位\n");
+        printf("字符串包含无效字符，无法转换为宽字符。\n");
         pressEnterToContinue();
         return false;
     }
 
-    for (int i = 0; i < len; ++i)
+    if (wchar_count < 2)
     {
-        if (!((str[i] >= 0x4e00) && (str[i] <= 0x9fff)))
+        printf("COMPANY 过短，至少为 2 个汉字。\n");
+        pressEnterToContinue();
+        return false;
+    }
+
+    if (wchar_count > 10)
+    {
+        printf("COMPANY 过长，最多为 10 个汉字。\n");
+        pressEnterToContinue();
+        return false;
+    }
+
+    for (size_t i = 0; i < wchar_count; ++i)
+    {
+        if (!(wstr[i] >= 0x4E00 && wstr[i] <= 0x9FFF))
         {
-            printf("STARTING 只能包含汉字\n");
+            printf("COMPANY 只能包含汉字。\n");
             pressEnterToContinue();
             return false;
         }
     }
+
     return true;
 }
 
@@ -2578,35 +2649,45 @@ bool isValidStringStarting(char *str)
  */
 bool isValidStringDestination(char *str)
 {
-    int len = strlen(str);
+    wchar_t wstr[32];
+    size_t wchar_count = mbstowcs(wstr, str, sizeof(wstr) / sizeof(wstr[0]));
 
-    if (len < 2)
+    if (wchar_count == (size_t)-1)
     {
-        printf("DESTINATION 过短 至少为2位\n");
-        pressEnterToContinue();
-        return false;
-    }
-    if (len > 10)
-    {
-        printf("DESTINATION 过长 最多为10位\n");
+        printf("字符串包含无效字符，无法转换为宽字符。\n");
         pressEnterToContinue();
         return false;
     }
 
-    for (int i = 0; i < len; ++i)
+    if (wchar_count < 2)
     {
-        if (!((str[i] >= 0x4e00) && (str[i] <= 0x9fff)))
+        printf("COMPANY 过短，至少为 2 个汉字。\n");
+        pressEnterToContinue();
+        return false;
+    }
+
+    if (wchar_count > 10)
+    {
+        printf("COMPANY 过长，最多为 10 个汉字。\n");
+        pressEnterToContinue();
+        return false;
+    }
+
+    for (size_t i = 0; i < wchar_count; ++i)
+    {
+        if (!(wstr[i] >= 0x4E00 && wstr[i] <= 0x9FFF))
         {
-            printf("DESTINATION 只能包含汉字\n");
+            printf("COMPANY 只能包含汉字。\n");
             pressEnterToContinue();
             return false;
         }
     }
+
     return true;
 }
 
 /**
- * 判断一个宽字符是否为宽字符（中日韩/全角字符）
+ * 判断一个宽字符是否为宽字符(中日韩/全角字符)
  */
 int wcDisplayWidth(wchar_t wc)
 {
@@ -2614,7 +2695,7 @@ int wcDisplayWidth(wchar_t wc)
     if ((wc >= 0x4E00 && wc <= 0x9FFF) || // CJK Unified Ideographs
         (wc >= 0x3400 && wc <= 0x4DBF) || // CJK Extension A
         (wc >= 0xF900 && wc <= 0xFAFF) || // CJK Compatibility Ideographs
-        (wc >= 0x3000 && wc <= 0x303F) || // CJK 标点符号（如全角逗号）
+        (wc >= 0x3000 && wc <= 0x303F) || // CJK 标点符号(如全角逗号)
         (wc >= 0xFF00 && wc <= 0xFFEF))
     {
         // 全角 ASCII、符号
@@ -2646,12 +2727,12 @@ int visualWidth(const char *str)
     wchar_t wstr[256];
     mbstowcs(wstr, str, sizeof(wstr) / sizeof(wchar_t));
 
-    // 返回显示宽度（中文=2，英文=1）
+    // 返回显示宽度(中文=2，英文=1)
     return wcswidth(wstr);
 }
 
 /**
- * 打印字符串并按宽度对齐（右侧补空格）
+ * 打印字符串并按宽度对齐(右侧补空格)
  * 例如 printAlign("航班号", 10); 会打印两字+6空格
  */
 void printAlign(const char *str, int totalWidth)
