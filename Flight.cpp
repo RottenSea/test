@@ -17,6 +17,8 @@
  * 只有一个用户管理员/一个航班管理员/一个航司管理员
  *
  * 航司就不改了 原本是航司只能管理自家的航班 现在只实现了能够查询自家的航班 其他功能和航班管理员差不多
+ *
+ * 没有考虑在航班时间结束后修改用户已订购航班
  */
 
 #include <stdio.h>
@@ -46,20 +48,20 @@
 const char *USER_FILE = "Users.dat";
 const char *FLIGHTS_FILE = "Flights.dat";
 
-void initialize(); // 223
+void initialize();
 void loadUsers();
 void saveUsers();
 void loadFlights();
 void saveFlights();
 
-void reg(); // 381
+void reg();
 void login();
 void userMenu(int index);
 void adminMenu(int index);
 void enterMenu(int index);
 
 // 定义查询航班
-void listFlight(const char *name); // 859
+void listFlight(const char *name);
 char *departureTime(int index);
 char *arrivalTime(int index);
 int countFlightRemain(int index);
@@ -69,23 +71,23 @@ void listUserBookedFlights(int index);
 void cancleFlight(int index);
 
 // 定义用户管理
-void addUser(); // 1288
+void addUser();
 void deleteUser();
 void modifyUser();
 void searchUser();
 
 // 定义航班管理
-void addFlight(); // 1680
+void addFlight();
 void deleteflight();
 void modifyFlight();
 
 // 定义查找用户函数
-int findUserIndexByUUID(char *inputUUID); // 2228
+int findUserIndexByUUID(char *inputUUID);
 int findAdminIndexByUUID(char *inputUUID);
 int findEnterIndexByUUID(char *inputUUID);
 
 // 定义用户验证函数
-bool isValidStringUUID(char *str); // 2267
+bool isValidStringUUID(char *str);
 bool isValidStringNAME(char *str);
 bool isValidStringPASSWORD(char *str);
 bool isValidStringPHONE(char *str);
@@ -93,7 +95,7 @@ bool isValidGender(int gender);
 bool isValidAge(int age);
 
 // 定义航班管理函数
-int findFlightIndexByCode(char *str); // 2394
+int findFlightIndexByCode(char *str);
 
 // 定义航班验证函数
 bool isValidStringCode(char *str);
@@ -106,14 +108,14 @@ bool isValidStringStarting(char *str);
 bool isValidStringDestination(char *str);
 
 // 定义工具函数
-int wcDisplayWidth(wchar_t wc); // 2669
+int wcDisplayWidth(wchar_t wc);
 int wcswidth(const wchar_t *wstr);
 int visualWidth(const char *str);
-void printAlign(const char *str, int total_width);
+void printAlign(const char *str, int totalWidth);
 time_t dateTotime(const char *str, int hour, int minute);
 time_t timeToTimeT(int year, int month, int day, int hour, int minute);
 void clearInputBuffer();
-void pressEnterToContinue(); // 2763
+void pressEnterToContinue();
 
 // 用户信息结构体
 typedef struct
@@ -163,7 +165,7 @@ typedef struct
     char GATE[MAX_NAME_LENGTH];
     char STARTING[MAX_NAME_LENGTH];
     char DESTINATION[MAX_NAME_LENGTH];
-    int prise;
+    int praise;
     int num;
     int curr;
 } FLIGHT;
@@ -301,7 +303,7 @@ void initialize()
     strcpy(f1.GATE, "411");
     strcpy(f1.STARTING, "杭州萧山国际机场");
     strcpy(f1.DESTINATION, "长春龙嘉国际机场");
-    f1.prise = 1000;
+    f1.praise = 1000;
     f1.num = 200;
     f1.curr = 100;
     flights[flightsCount++] = f1;
@@ -903,7 +905,7 @@ void listFlight(const char *name)
             printAlign(flights[i].STARTING, 20);
             printAlign(flights[i].DESTINATION, 20);
             char priceStr[16], remainStr[16];
-            sprintf(priceStr, "%d", flights[i].prise);
+            sprintf(priceStr, "%d", flights[i].praise);
             sprintf(remainStr, "%d", countFlightRemain(i));
             printAlign(priceStr, 8);
             printAlign(remainStr, 8);
@@ -926,7 +928,7 @@ void listFlight(const char *name)
                 printAlign(flights[i].STARTING, 20);
                 printAlign(flights[i].DESTINATION, 20);
                 char priceStr[16], remainStr[16];
-                sprintf(priceStr, "%d", flights[i].prise);
+                sprintf(priceStr, "%d", flights[i].praise);
                 sprintf(remainStr, "%d", countFlightRemain(i));
                 printAlign(priceStr, 8);
                 printAlign(remainStr, 8);
@@ -1064,7 +1066,7 @@ void bookFlight(int index)
         char numStr[8];
         snprintf(numStr, sizeof(numStr), "%d", i + 1);
         char priceStr[16];
-        snprintf(priceStr, sizeof(priceStr), "%d", flights[index].prise);
+        snprintf(priceStr, sizeof(priceStr), "%d", flights[index].praise);
 
         printAlign(numStr, 6);
         printAlign(flights[index].date, MAX_DATE_LENGTH);
@@ -1087,7 +1089,7 @@ void bookFlight(int index)
     }
 
     int selected = findFlightIndex[inputBookFlight - 1];
-    printf("请支付金额: %d元\n", flights[selected].prise);
+    printf("请支付金额: %d元\n", flights[selected].praise);
 
     int payRes = 0;
     printf("是否成功支付(0失败 1成功): ");
@@ -1824,7 +1826,7 @@ void addFlight()
 
     // 票价
     printf("PRICE(1-10000): ");
-    while (scanf("%d%c", &f.prise, &c) != 2 || c != '\n' || f.prise < 1 || f.prise > 10000)
+    while (scanf("%d%c", &f.praise, &c) != 2 || c != '\n' || f.praise < 1 || f.praise > 10000)
     {
         printf("无效输入 请输入 1~10000 范围内的票价: ");
         clearInputBuffer();
@@ -1881,7 +1883,7 @@ void deleteflight()
     printf("公司: %s\n", flights[index].COMPANY);
     printf("出发地 → 目的地: %s → %s\n", flights[index].STARTING, flights[index].DESTINATION);
     printf("出发日期: %s\n", flights[index].date);
-    printf("票价: %d 元\n", flights[index].prise);
+    printf("票价: %d 元\n", flights[index].praise);
 
     // 删除确认
     char confirm;
@@ -2190,7 +2192,7 @@ void modifyFlight()
                 printf("无效输入 请重新输入: ");
                 clearInputBuffer();
             }
-            flights[index].prise = price;
+            flights[index].praise = price;
             saveFlights();
             printf("票价修改成功\n");
             pressEnterToContinue();
