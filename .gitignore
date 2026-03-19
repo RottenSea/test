@@ -1,3 +1,6 @@
+# VS configuration
+.vs/*
+
 # VSCode configuration
 .vscode/*
 !.vscode/settings.json
