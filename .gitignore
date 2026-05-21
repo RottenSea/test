@@ -12,10 +12,11 @@
 *.o
 *.exe
 *.log
-*.txt
 *.dat
 
 # Python
 .venv/
 __pycache__/
 *.pyc
+
+temp/
