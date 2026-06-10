@@ -32,6 +32,13 @@
         "isDefault": true
       },
       "detail": "compiler: C:\\Programs\\msys64\\ucrt64\\bin\\g++.exe"
+    },
+    {
+      "label": "Test WorkspaceFolder",
+      "type": "shell",
+      "command": "echo",
+      "args": ["Workspace folder is: ${workspaceFolder}"],
+      "problemMatcher": []
     }
   ]
 }
