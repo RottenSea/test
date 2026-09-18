@@ -30,5 +30,6 @@ public class Test002 {
             default:
                 System.out.println("Invalid season");
         }
+        scanner.close();
     }
 }

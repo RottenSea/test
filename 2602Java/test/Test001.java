@@ -25,5 +25,6 @@ public class Test001 {
 
             System.out.println("Score: " + score);
         }
+        scanner.close();
     }
 }
