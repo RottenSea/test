@@ -1,0 +1,76 @@
+body {
+  font-family: "Microsoft YaHei", "SimSun", sans-serif;
+  font-size: 16px;
+  font-weight: normal;
+  color: #333333;
+  background-color: rgb(250, 247, 240);
+  line-height: 1.8;
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: bold;
+  text-align: center;
+  color: #8b5a2b;
+  text-shadow: 2px 2px 4px rgba(139, 90, 43, 0.3);
+}
+
+p.slogan {
+  text-align: center;
+  font-style: italic;
+  font-size: 18px;
+  color: #7a6a55;
+}
+
+p.nav {
+  text-align: center;
+}
+
+p.nav a {
+  text-decoration: none;
+  color: #8b5a2b;
+  font-size: 18px;
+}
+
+p.nav a:hover {
+  color: #b3541e;
+  font-weight: bold;
+}
+
+h2.book-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #8b5a2b;
+}
+
+p.author,
+p.tags {
+  font-size: 14px;
+  color: rgb(122, 106, 85);
+}
+
+p.pic {
+  text-align: center;
+}
+
+p.pic img {
+  width: 120px;
+}
+
+p.intro {
+  text-indent: 2em;
+  text-align: left;
+}
+
+p.tags {
+  width: 480px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#footer {
+  text-align: center;
+  font-size: 14px;
+  color: #999999;
+}
