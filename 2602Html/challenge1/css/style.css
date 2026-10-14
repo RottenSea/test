@@ -1,54 +1,80 @@
+/* ============================================================
+   校园读书分享页 样式表
+   说明：注释按功能分段，写清“为什么这么写”。
+   本文件只用已学过的知识：选择器、颜色、字体、文本属性、
+   超链接样式、文字阴影、文本溢出；
+   不使用 margin/padding/背景属性/列表属性/浮动/定位/
+   盒模型/弹性布局等未讲授的知识。
+   ============================================================ */
+
+/* ---------- 一、全局样式（标记选择器） ----------
+   用标记选择器 body 统一正文外观，之后所有段落继承这些
+   取值，保证整页字号、行距一致，正文可读。 */
 body {
-  font-family: "Microsoft YaHei", "SimSun", sans-serif;
-  font-size: 16px;
-  font-weight: normal;
-  color: #333333;
-  background-color: rgb(250, 247, 240);
-  line-height: 1.8;
+  font-family: "Microsoft YaHei", "SimSun", sans-serif; /* 中文字体优先，避免中文显示为宋体黑体混排 */
+  font-size: 16px;   /* 正文字号：16px 在电脑和手机上都比较易读 */
+  font-weight: normal; /* 正文不加粗，只有标题需要强调 */
+  color: #333333;    /* 深灰而不是纯黑，长时间阅读不刺眼（十六进制写法） */
+  line-height: 1.8;  /* 行距 1.8 倍，段落之间呼吸感好，阅读不累 */
 }
 
+/* 页面头部标题：字号最大、加粗居中，是全页的视觉中心 */
 h1 {
   font-size: 32px;
   font-weight: bold;
-  text-align: center;
-  color: #8b5a2b;
+  text-align: center;  /* 头部标题居中，符合页头的排版习惯 */
+  color: #8b5a2b;      /* 棕色系呼应“书卷气” */
+  /* 文字阴影：浅色、小偏移、有模糊，效果自然不刺眼（rgba 写法） */
   text-shadow: 2px 2px 4px rgba(139, 90, 43, 0.3);
 }
 
+/* ---------- 二、口号（类选择器 + font-style） ----------
+   口号是一句副标题，用斜体把它和普通正文区分开。 */
 p.slogan {
   text-align: center;
-  font-style: italic;
+  font-style: italic;  /* 斜体表示“引用/感叹”，与正文形成层次 */
   font-size: 18px;
   color: #7a6a55;
 }
 
+/* ---------- 三、导航区（后代选择器 + 超链接样式） ----------
+   p.nav a 是“后代选择器”：只要 a 出现在 class 为 nav 的 p 内，
+   就应用这里的链接样式，不影响页面上其他链接。 */
 p.nav {
-  text-align: center;
+  text-align: center;  /* 导航链接居中，一眼看到三个入口 */
 }
 
 p.nav a {
-  text-decoration: none;
+  text-decoration: none; /* 去掉默认下划线，链接更干净 */
   color: #8b5a2b;
   font-size: 18px;
 }
 
+/* 悬停效果：鼠标移上去变色并加粗，给用户“可点击”的反馈 */
 p.nav a:hover {
   color: #b3541e;
   font-weight: bold;
 }
 
+/* ---------- 四、图书区（交集选择器 + 并集选择器） ----------
+   h2.book-title 是“交集选择器”：只选中“既是 h2 又带
+   book-title 类”的标题，不影响别的 h2。 */
 h2.book-title {
   font-size: 24px;
   font-weight: bold;
   color: #8b5a2b;
 }
 
+/* 并集选择器：作者行和关键词行是同一类“小字辅助信息”，
+   字号和颜色相同，合并写一条规则，避免重复代码。 */
 p.author,
 p.tags {
-  font-size: 14px;
-  color: rgb(122, 106, 85);
+  font-size: 14px;   /* 辅助信息比正文小一档，主次分明 */
+  color: rgb(122, 106, 85); /* rgb 写法，与主色同色系 */
 }
 
+/* 封面图：放在 p.pic 里并整体居中，图片宽度限制在 120px，
+   与页面其他内容比例协调。 */
 p.pic {
   text-align: center;
 }
@@ -57,11 +83,16 @@ p.pic img {
   width: 120px;
 }
 
+/* 简介：首行缩进 2 字符是中文排版的传统习惯，
+   用 text-indent 实现，左对齐正文保证长文可读。 */
 p.intro {
   text-indent: 2em;
   text-align: left;
 }
 
+/* 关键词一行可能很长，需要“超出部分显示省略号”：
+   三个属性必须配合——white-space 不换行、overflow 隐藏多余、
+   text-overflow 在末尾加省略号，宽度限在 480px。 */
 p.tags {
   width: 480px;
   white-space: nowrap;
@@ -69,6 +100,9 @@ p.tags {
   text-overflow: ellipsis;
 }
 
+/* ---------- 五、页脚（ID 选择器） ----------
+   id 为 footer 的段落是页脚，全页只有一个，
+   用 ID 选择器选中，居中并弱化颜色，退居页面末尾。 */
 #footer {
   text-align: center;
   font-size: 14px;
