@@ -29,9 +29,6 @@ class Car {
 public class test02 {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        Car car1 = new Car(scanner);
-        Car car2 = new Car(scanner);
-        Car car3 = new Car(scanner);
         scanner.close();
 
         Car.showFactoryInfo();
