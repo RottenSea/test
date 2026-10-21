@@ -6,7 +6,7 @@ public class test08 {
         shape.showName();
         System.out.println(shape.getArea());
 
-        shape = new Rectangle();
+        Shape = new Rectangle();
         shape.showName();
         System.out.println(shape.getArea());
     }
