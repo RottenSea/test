@@ -1,27 +1,30 @@
 <!doctype html>
-<html>
+<html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>Title</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>盒模型的概念</title>
+        <style>
+            .box{
+                width: 200px;
+                height:  200px;
+                border:5px solid red;
+                padding:20px;
+                margin:30px auto;
+                background-color: yellow;
+                box-sizing:border-box;
+            }
+            body{
+                background-color: aquamarine;
+            }
+            html{
+                background-color:white;
+            }
+        </style>
     </head>
     <body>
-        <h1>Hello</h1>
-        <hr />
-        <h2>Hello</h2>
-        <h3>Hello</h3>
-        <h4>Hello</h4>
-        <h5>Hello</h5>
-        <h6>Hello</h6>
-        <p>Hello</p>
-
-        <h1>冬夜读书示子聿</h1>
-        <hr />
-        <h3>[宋] 陆游</h3>
-        <p>
-            古人学问无遗力<br />
-            少壮工夫老始成<br />
-            纸上得来终觉浅<br />
-            绝知此事要躬行
-        </p>
+        <div class = "box">盒子的内容</div>
+        <div class = "box">盒子的内容</div>
+        <p>这是一个段落</p>
     </body>
 </html>

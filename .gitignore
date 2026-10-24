@@ -25,6 +25,7 @@ docs/
 # Images
 *.png
 *.jpg
+*.jpeg
 
 # Java
 *.class
