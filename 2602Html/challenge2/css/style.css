@@ -1,0 +1,150 @@
+@charset "utf-8";
+/* =========================================================
+   校园读书分享页（challenge2）—— 盒模型 + 背景版  style.css
+
+   与 challenge1（纯文本排版版）相比，本次只做两件事：
+   ① 用盒模型给页面分区、分块：width / padding / border /
+      margin / border-radius / box-shadow / box-sizing；
+   ② 用背景属性给页面和盒子铺底色、铺纹理。
+
+   所有数值照《设计稿》抄：设计稿给什么值，代码就写什么值。
+   全文未使用浮动、定位、弹性布局、渐变等超纲属性。
+   ========================================================= */
+
+/* ---------- 一、页面整体（第9讲：背景综合属性）----------
+   一条 background 写全：颜色 url() 平铺方式 位置。
+   颜色写在最前面是"兜底"：万一纹理图路径写错或加载失败，
+   页面仍是米色底，不会退回刺眼的白板。 */
+body {
+    background: #f4f1e8 url("../img/stripe.svg") repeat left top;
+    font-family: "微软雅黑", "Microsoft YaHei", sans-serif; /* 中文字体优先，避免中文回退成宋体，字形和设计稿一致 */
+    font-size: 16px;                                       /* 正文字号定死 16px，导航等字号都从它继承 */
+    color: #333333;                                        /* 深灰而非纯黑，长文阅读不刺眼 */
+    /* 注意：这里故意不写 line-height。行高一旦写在 body 上，
+       导航条里的文字也会继承，绿色横条就会被撑到 52px，
+       而设计稿自测标准要求导航实际高 46px（12+22+12）。 */
+}
+
+/* ---------- 二、页头：主标题与口号（第6讲复习）---------- */
+
+/* 主标题：设计稿给的 32px、主题绿、居中，另加一层浅灰文字阴影做出层次 */
+h1 {
+    font-size: 32px;
+    color: #1a6b3c;
+    text-align: center;
+    text-shadow: 2px 2px 3px #cccccc; /* 水平 2px、垂直 2px、模糊 3px，阴影浅而不糊 */
+}
+
+/* 口号：一句话副标题，比正文小一档并用斜体区分主次 */
+p.slogan {
+    font-size: 15px;
+    font-style: italic;
+    text-align: center;
+}
+
+/* ---------- 三、导航条（第8讲盒模型 + 第9讲背景）----------
+   一条 p.nav 做成"绿色圆角横条"：宽度定 800px 才谈得上居中，
+   padding 把横条撑高，背景色铺满整条。 */
+.nav {
+    width: 800px;              /* 块级元素必须先有宽度，margin:0 auto 才有空间可分 */
+    margin: 0 auto 24px;       /* 0 auto 水平居中；下外边距 24px 与第一张卡片拉开距离 */
+    padding: 12px 0;           /* 上下各 12px 把横条撑高（12+22+12=46，正是设计稿的导航高） */
+    background-color: #1a6b3c; /* 主题绿，与主标题、书名同色，全页才像一套 */
+    border-radius: 8px;        /* 圆角，避免生硬的直角，也和卡片的 10px 圆角呼应 */
+    text-align: center;        /* 链接是行内元素，自己不能居中，靠父元素的 text-align 居中 */
+}
+
+/* 链接在深绿底上必须改成白色才看得清；去掉默认下划线，视觉上更像按钮 */
+.nav a {
+    color: #ffffff;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* 悬停时恢复下划线：给用户"这里可以点"的即时反馈 */
+.nav a:hover {
+    text-decoration: underline;
+}
+
+/* ---------- 四、图书卡片 ×3（第8讲核心）----------
+   三张卡片规格完全相同，用并集选择器一条规则写完，避免重复代码。 */
+#book1,
+#book2,
+#book3 {
+    width: 800px;
+    /* 关键：border-box 让 800px 把 padding 和 border 一起算进去。
+       不写它就是 800+32×2+1×2=866px，比版心宽出一圈，F12 一量就露馅。 */
+    box-sizing: border-box;
+    margin: 0 auto 30px;       /* 水平居中 + 卡片间距 30px，卡片之间才会"分开"而不是挤在一起 */
+    padding: 24px 32px;        /* 上下 24px、左右 32px，文字不贴着卡片边缘 */
+    background-color: #ffffff; /* 白底卡片，从米色页面上"浮"起来 */
+    border: 1px solid #d8d3c5; /* 比底色深一点的细边框，勾出卡片轮廓 */
+    border-radius: 10px;       /* 圆角，卡片显得柔和 */
+    /* rgba 第四位 0.12 是透明度：阴影淡、不脏，盒子有浮起感又不像描边 */
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* ---------- 五、书名（第8讲：单边虚线）----------
+   书名下面要"一条虚线"而不是"一圈虚线框"，
+   所以只写 border-bottom 单边，不能写 border 简写。 */
+h2.book-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #1a6b3c;
+    padding-bottom: 8px;                 /* 虚线与文字之间留 8px，线不贴字 */
+    border-bottom: 2px dashed #bcd0bd;   /* 2px 虚线、浅绿色，比正文弱，只做分隔不做强调 */
+}
+
+/* 作者行：辅助信息，比正文小一档、用斜体与灰字退到次要位置 */
+p.author {
+    font-size: 14px;
+    font-style: italic;
+    color: #999999;
+}
+
+/* ---------- 六、封面相框（第8、9讲：把 img 当盒子）----------
+   img 本身也是盒子，给它加 padding 和背景色，就得到"白框"效果，
+   不需要额外套一层 div。 */
+p.pic {
+    text-align: center; /* img 是行内元素，居中要写在父元素上，写在 img 上无效 */
+}
+
+p.pic img {
+    padding: 8px;              /* 内边距 8px 就是相框的白边，四边等宽 */
+    background-color: #ffffff; /* 白边来自 img 自己 padding 区域的背景色 */
+    border: 1px solid #ddd8c8; /* 相框外沿细边框，和卡片边框同色系但更浅 */
+    border-radius: 4px;        /* 相框四角微圆，和卡片圆角保持同一风格 */
+}
+
+/* ---------- 七、简介与关键词（第6讲复习）---------- */
+
+/* 简介：15px、两端对齐、首行缩进 2em、行高 28px，长段落读起来才不累 */
+p.intro {
+    font-size: 15px;
+    line-height: 28px;
+    text-indent: 2em;    /* 中文排版习惯，首行缩进两个汉字 */
+    text-align: justify; /* 两端对齐，右侧不留参差的锯齿 */
+}
+
+/* 关键词：一行可能会很长，超出部分显示省略号。
+   四步缺一不可：① 给宽度 ② 禁止换行 ③ 隐藏溢出 ④ 末尾加省略号 */
+p.tags {
+    width: 640px;               /* ① 有确定宽度，才谈得上"超出" */
+    white-space: nowrap;        /* ② 强制不换行，内容全挤在一行 */
+    overflow: hidden;           /* ③ 超过 640px 的部分裁掉 */
+    text-overflow: ellipsis;    /* ④ 被裁掉的地方补省略号 */
+    font-size: 13px;
+    color: #999999;
+}
+
+/* ---------- 八、页脚（第5讲优先级 + 第8讲单边边框）----------
+   ID 选择器权重最高，页脚同时又要宽 800px 居中，所以三条都写全。 */
+#footer {
+    width: 800px;
+    margin: 40px auto 0;          /* 与最后一张卡片拉开 40px；写 0 是为了不额外加下边距 */
+    padding-top: 16px;            /* 分隔线与署名之间留 16px，线不压字 */
+    border-top: 1px solid #c9c4b4; /* 只要上边框做分隔线，同样是单边写法 */
+    text-align: center;
+    font-size: 13px;
+    color: #999999;
+}
