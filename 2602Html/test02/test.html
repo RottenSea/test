@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>水平导航条</title>
+<style type="text/css">
+    body,ul,li {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    body {
+        background: url("images/bodybg.jpg");
+        font-family: "微软雅黑";
+        font-size: 14px;
+    }
+    a {
+        text-decoration: none;
+    }
+    nav {  /*导航条的样式*/
+        background: rgb(28, 75, 169);
+        margin: 50px auto;
+        height: 42px;
+        width: 100%; /*宽度与浏览器相同*/
+    }
+    .navCon {  /*导航块中无序列表的样式*/
+        margin: 0px auto;/*内容在导航块中居中*/
+        width: 1200px;
+        height: 42px;
+    }
+    .navCon li {  /*导航块中每个列表项的样式*/
+        width: 120px;
+        float: left; /*每个列表项左浮动，使列表项水平排列*/
+    }
+    .navCon li a {/*超链接文字的样式*/
+        display: block;/*使超链接元素为块元素，可以设置宽度和高度*/
+        width: 120px;
+        height: 42px;
+        line-height: 42px;
+        text-align: center;
+        color: #FFF;
+    }
+    .navCon li a:hover {  /*鼠标悬停到超链接文字时的样式*/
+        color: rgb(28, 75, 169);
+        background: #FFF;
+    }
+</style>
+</head>
+<body>
+    <nav>
+        <ul class="navCon">
+            <li><a href="#">网站首页</a></li>
+            <li><a href="#">学院概况</a></li>
+            <li><a href="#">新闻中心</a></li>
+            <li><a href="#">机构设置</a></li>
+            <li><a href="#">教学科研</a></li>
+            <li><a href="#">团学在线</a></li>
+            <li><a href="#">招生就业</a></li>
+            <li><a href="#">公共服务</a></li>
+            <li><a href="#">信息公开</a></li>
+            <li><a href="#">统一信息门户</a></li>
+        </ul>
+    </nav>
+</body>
+</html>
