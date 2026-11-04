@@ -2,7 +2,7 @@ package test18;
 
 import java.io.*;
 
-public class test17 {
+public class test18 {
     public static void main(String args[]) {
         FileWriter fw = null;
         BufferedWriter bw = null;
