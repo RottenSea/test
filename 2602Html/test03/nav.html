@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="author"
+      content="李欣晨"
+    />
+    <meta
+      name="class"
+      content="计算24406"
+    />
+    <meta
+      name="student-id"
+      content="072440632"
+    />
+    <title>校园图书馆 - 二级菜单导航条</title>
+    <style>
+      body {
+        font-family: "微软雅黑", "Microsoft YaHei", sans-serif;
+      }
+
+      .nav {
+        width: 100%;
+        height: 48px;
+        background-color: rgb(30, 94, 60);
+      }
+
+      ul.menu,
+      ul.sub {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      ul.menu {
+        width: 900px;
+        height: 48px;
+        margin: 0 auto;
+      }
+
+      .menu li {
+        display: inline-block;
+        width: 180px;
+        height: 48px;
+        vertical-align: top;
+      }
+
+      .menu li a {
+        display: block;
+        width: 180px;
+        height: 48px;
+        line-height: 48px;
+        text-align: center;
+        font-size: 16px;
+        color: #ffffff;
+        text-decoration: none;
+      }
+
+      .menu li:hover {
+        background-color: rgb(19, 66, 41);
+      }
+
+      ul.sub {
+        display: none;
+        width: 200px;
+      }
+
+      .menu li:hover ul.sub {
+        display: block;
+      }
+
+      .sub li {
+        display: block;
+        width: 200px;
+        height: 44px;
+        line-height: 44px;
+        background-color: rgb(30, 94, 60);
+        border-top: 1px solid rgb(18, 64, 38);
+      }
+
+      .sub li a {
+        display: block;
+        width: 200px;
+        height: 44px;
+        line-height: 44px;
+        text-align: center;
+        font-size: 14px;
+        color: #ffffff;
+        text-decoration: none;
+      }
+
+      .sub li a:hover {
+        background-color: #ffffff;
+        color: rgb(30, 94, 60);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="nav">
+      <ul class="menu">
+        <li><a href="#">首页</a></li>
+        <li>
+          <a href="#">馆藏资源</a>
+          <ul class="sub">
+            <li><a href="#">纸质图书</a></li>
+            <li><a href="#">电子期刊</a></li>
+            <li><a href="#">学位论文</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#">读者服务</a>
+          <ul class="sub">
+            <li><a href="#">借阅规则</a></li>
+            <li><a href="#">图书续借</a></li>
+            <li><a href="#">荐购图书</a></li>
+          </ul>
+        </li>
+        <li><a href="#">活动公告</a></li>
+        <li><a href="#">联系我们</a></li>
+      </ul>
+    </div>
+  </body>
+</html>

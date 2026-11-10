@@ -1,65 +1,127 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<title>水平导航条</title>
-<style type="text/css">
-    body,ul,li {
+  <head>
+    <meta charset="utf-8" />
+    <title>水平导航条</title>
+    <style type="text/css">
+      body,
+      ul,
+      li {
         margin: 0;
         padding: 0;
         list-style: none;
-    }
-    body {
-        background: url("images/bodybg.jpg");
+      }
+      body {
         font-family: "微软雅黑";
         font-size: 14px;
-    }
-    a {
+      }
+      a {
         text-decoration: none;
-    }
-    nav {  /*导航条的样式*/
+      }
+      nav {
         background: rgb(28, 75, 169);
-        margin: 50px auto;
         height: 42px;
-        width: 100%; /*宽度与浏览器相同*/
-    }
-    .navCon {  /*导航块中无序列表的样式*/
-        margin: 0px auto;/*内容在导航块中居中*/
+        width: 100%;
+      }
+      .navCon {
+        margin: 0px auto;
         width: 1200px;
         height: 42px;
-    }
-    .navCon li {  /*导航块中每个列表项的样式*/
+        position: relative;
+        z-index: 111;
+      }
+      .navCon li {
         width: 120px;
-        float: left; /*每个列表项左浮动，使列表项水平排列*/
-    }
-    .navCon li a {/*超链接文字的样式*/
-        display: block;/*使超链接元素为块元素，可以设置宽度和高度*/
+        height: 42px;
+        float: left;
+        text-align: center;
+      }
+      .navCon li a {
+        display: block;
         width: 120px;
         height: 42px;
         line-height: 42px;
+        color: #fff;
+      }
+      .navCon li ul {
+        width: 150px;
+        display: none;
+      }
+      .navCon li:hover ul {
+        display: block;
+      }
+      .navCon li ul li {
+        background: rgb(28, 75, 169);
+        width: 150px;
+        height: 40px;
+        line-height: 40px;
+        border-bottom: 1px solid rgb(0, 52, 162);
         text-align: center;
-        color: #FFF;
-    }
-    .navCon li a:hover {  /*鼠标悬停到超链接文字时的样式*/
-        color: rgb(28, 75, 169);
-        background: #FFF;
-    }
-</style>
-</head>
-<body>
+      }
+      .navCon li ul li a {
+        display: block;
+        width: 150px;
+        height: 40px;
+        text-align: center;
+        color: rag(255, 255, 255);
+        line-height: 40px;
+      }
+    </style>
+  </head>
+  <body>
     <nav>
-        <ul class="navCon">
-            <li><a href="#">网站首页</a></li>
-            <li><a href="#">学院概况</a></li>
-            <li><a href="#">新闻中心</a></li>
-            <li><a href="#">机构设置</a></li>
-            <li><a href="#">教学科研</a></li>
-            <li><a href="#">团学在线</a></li>
-            <li><a href="#">招生就业</a></li>
-            <li><a href="#">公共服务</a></li>
+      <ul class="navCon">
+        <li><a href="#">网站首页</a></li>
+        <li>
+          <a href="#">学院概况</a>
+          <ul>
+            <li><a href="#">学院简介</a></li>
+            <li><a href="#">学院荣誉</a></li>
+            <li><a href="#">国家级示范性软件学院</a></li>
+            <li><a href="#">高技能人才培训基地</a></li>
+            <li><a href="#">办公电话</a></li>
+            <li><a href="#">联系方式</a></li>
+            <li><a href="#">视频宣传</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#">新闻中心</a>
+          <ul>
+            <li><a href="#">学校要闻</a></li>
+            <li><a href="#">系部动态</a></li>
+            <li><a href="#">通知公告</a></li>
+          </ul>
+        </li>
+        <li><a href="#">机构设置</a></li>
+        <li>
+          <a href="#">教学科研</a>
+          <ul>
+            <li><a href="#">教务管理系统</a></li>
+            <li><a href="#">精品课程</a></li>
+            <li><a href="#">教学辅助平台</a></li>
+            <li><a href="#">网络教学平台</a></li>
+          </ul>
+        </li>
+        <li><a href="#">团学在线</a></li>
+        <li>
+          <a href="#">招生就业</a>
+          <ul>
+            <li><a href="#">招生信息网</a></li>
+            <li><a href="#">就业信息网</a></li>
+            <li><a href="#">空中乘务</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#">公共服务</a>
+          <ul>
+            <li><a href="#">图书馆</a></li>
             <li><a href="#">信息公开</a></li>
-            <li><a href="#">统一信息门户</a></li>
-        </ul>
+            <li><a href="#">建行缴费</a></li>
+          </ul>
+        </li>
+        <li><a href="#">信息公开</a></li>
+        <li><a href="#">统一信息门户</a></li>
+      </ul>
     </nav>
-</body>
+  </body>
 </html>
