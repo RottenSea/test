@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>练习二：照片墙（定位）</title>
+    <style>
+      .photo-wall {
+        width: 600px;
+        height: 400px;
+        position: relative;
+        border: 3px dashed #ccc;
+        margin: 50px auto;
+        background: #f9f9f9;
+      }
+
+      .photo {
+        position: absolute;
+        width: 150px;
+        height: 100px;
+        background: #fff;
+        border: 2px solid #333;
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      .photo1 {
+        top: 50px;
+        left: 100px;
+        background: lightblue;
+      }
+
+      .photo2 {
+        top: 80px;
+        left: 280px;
+        background: lightgreen;
+      }
+
+      .photo3 {
+        bottom: 60px;
+        right: 120px;
+        background: lightcoral;
+      }
+
+      .photo-label {
+        position: absolute;
+        bottom: 5px;
+        left: 5px;
+        background: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        font-size: 12px;
+        padding: 2px 8px;
+        border-radius: 3px;
+      }
+
+      .photo-decoration {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        width: 25px;
+        height: 25px;
+        background: gold;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 25px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="photo-wall">
+      <div class="photo photo1">
+        <span class="photo-label">海边度假</span>
+        <div class="photo-decoration">❤</div>
+      </div>
+
+      <div class="photo photo2">
+        <span class="photo-label">山顶日出</span>
+        <div class="photo-decoration">★</div>
+      </div>
+
+      <div class="photo photo3">
+        <span class="photo-label">城市夜景</span>
+        <div class="photo-decoration">●</div>
+      </div>
+    </div>
+  </body>
+</html>
